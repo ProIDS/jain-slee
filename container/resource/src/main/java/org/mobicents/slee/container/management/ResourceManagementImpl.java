@@ -1079,9 +1079,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 		currentThread.setContextClassLoader(currentThreadClassLoader);
 
-		if(stoppingGracefully) {
-			logger.trace("Graceful stopping mode is active - skip waiting till all ra entity objects are stopped");
-			return;
+		if(stoppingGracefully && logger.isInfoEnabled()) {
+			logger.info("Graceful stopping mode is active - waiting till all ra entity objects are gracefully stopped");
 		}
 
 		// wait till all ra entity objects are stopped

@@ -273,16 +273,14 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			logger.trace("raStopping() " + (stoppingGracefully?"gracefully":""));
 		}
 
-		if (state == ResourceAdaptorObjectState.ACTIVE || state == ResourceAdaptorObjectState.STOPPING) {
+		if (state == ResourceAdaptorObjectState.ACTIVE || state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			if(stoppingGracefully) {
-				if(stopRaGracefully()) {
-					state = ResourceAdaptorObjectState.STOPPING;
-				} else {
-					//no state change
-				}
+				state = ResourceAdaptorObjectState.STOPPING_GRACEFULLY;
+				stopRaGracefully();
 			} else {
 				state = ResourceAdaptorObjectState.STOPPING;
 				object.raStopping();
+				raEntity
 			}
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
@@ -296,6 +294,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			method = object.getClass().getMethod(GracefullyStopableResourceAdaptor.RA_GRACEFUL_STOP_METHOD_NAME);
 			method.invoke(object);
 			isSuccess = true;
+			raEntity.setState();
 		} catch (Throwable t) {
 			logger.warn("RA object of entity: " + raEntity.getName() + " does not support graceful stopping mode. Cause: " + t.getClass() + " " + t.getMessage());
 			if(doTraceLogs) {
@@ -318,7 +317,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			logger.trace("raInactive()");
 		}
 
-		if (state == ResourceAdaptorObjectState.STOPPING) {
+		if (state == ResourceAdaptorObjectState.STOPPING || state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			state = ResourceAdaptorObjectState.INACTIVE;
 			object.raInactive();
 		} else {
@@ -598,7 +597,8 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 		}
 
 		if (this.state == ResourceAdaptorObjectState.ACTIVE
-				|| this.state == ResourceAdaptorObjectState.STOPPING) {
+				|| this.state == ResourceAdaptorObjectState.STOPPING
+				|| this.state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			object.eventProcessingSuccessful(handle, eventType, event, address,
 					service, flags);
 		}
@@ -626,7 +626,8 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 		}
 
 		if (this.state == ResourceAdaptorObjectState.ACTIVE
-				|| this.state == ResourceAdaptorObjectState.STOPPING) {
+				|| this.state == ResourceAdaptorObjectState.STOPPING
+				|| this.state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			object.eventUnreferenced(handle, eventType, event, address,
 					service, flags);
 		}

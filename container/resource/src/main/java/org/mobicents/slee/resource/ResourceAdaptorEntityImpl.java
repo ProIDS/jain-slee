@@ -330,7 +330,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 			timerTask = null;
 		}
 		if (!this.state.isInactive()) {
-			if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
+			if (object.getState() == ResourceAdaptorObjectState.STOPPING || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 				try {
 					object.raInactive();
 				}
@@ -394,7 +394,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 					+ this.state);
 		}
 		this.state = ResourceAdaptorEntityState.STOPPING;
-		if (object.getState() == ResourceAdaptorObjectState.ACTIVE) {
+		if (object.getState() == ResourceAdaptorObjectState.ACTIVE || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			object.raStopping();
 		}
 		// tck requires that the method returns with stopping state so do
@@ -405,7 +405,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 				try {
 					cancel();
 					if (state == ResourceAdaptorEntityState.STOPPING) {
-						if (object.getState() == ResourceAdaptorObjectState.STOPPING) {	
+						if (object.getState() == ResourceAdaptorObjectState.STOPPING || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 							scheduleAllActivitiesEnd();
 						}
 						else {
@@ -683,7 +683,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		if (ah != null && ActivityFlags.hasRequestEndedCallback(activityFlags)) {
 			object.activityEnded(ah);
 		}
-		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
+		if (object.getState() == ResourceAdaptorObjectState.STOPPING || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			synchronized (this) {
 				// the ra object is stopping, check if the timer task is still
 				// needed
