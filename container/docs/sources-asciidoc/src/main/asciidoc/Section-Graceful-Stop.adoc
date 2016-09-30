@@ -3,7 +3,7 @@
 
 JAIN SLEE container can be stopped gracefully.
 It means that all graceful shutdown compliant Resource Adaptors are notified to go into graceful stopping state
-and other RAs work normally (they stay in <<_ACTIVE>> state).
+and other RAs work normally (they stay in `ACTIVE` state).
 The graceful stop process is broken and standard stop is invoked when total number of active compliant RAs activities
 reaches configured Active Sessions Threshold value or specified maximum graceful shutdown wait time elapses.
 
