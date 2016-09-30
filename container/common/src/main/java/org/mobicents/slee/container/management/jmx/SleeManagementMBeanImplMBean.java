@@ -47,5 +47,12 @@ import javax.slee.management.SleeManagementMBean;
 public interface SleeManagementMBeanImplMBean extends SleeManagementMBean,
 		MBeanRegistration, NotificationBroadcaster {
 
-	public void gracefulStop() throws InvalidStateException, ManagementException;
+	public String gracefulStop(Integer ast, Long time) throws InvalidStateException, ManagementException;
+
+	public int getDefaultActiveSessionsThreshold();
+	public void setDefaultActiveSessionsThreshold(int defaultActiveSessionsThreshold);
+
+	public long getDefaultGracefulShutdownWaitTime();
+	public void setDefaultGracefulShutdownWaitTime(long defaultGracefulShutdownWaitTime);
+
 }

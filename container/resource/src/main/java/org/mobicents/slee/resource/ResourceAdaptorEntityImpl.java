@@ -66,7 +66,7 @@ import java.util.TimerTask;
  * Implementation of the logical Resource Adaptor Entity and its life cycle.
  * 
  * @author Eduardo Martins
- * @author @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
+ * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
  */
 public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 
@@ -132,6 +132,8 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	
 	@SuppressWarnings("rawtypes")
 	private FaultTolerantResourceAdaptorContextImpl ftResourceAdaptorContext;
+
+	private boolean isGracefullyStoppable;
 	
 	/**
 	 * Creates a new entity with the specified name, for the specified ra
@@ -445,7 +447,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * Checks if the entity has activities besides the one passed as parameter (if not null).
 	 * @return
 	 */
-	private boolean hasActivities() {
+	public boolean hasActivities() {
 		try {	
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
@@ -467,7 +469,31 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		return false;
 	}
 
-	private EndAllActivitiesRAEntityTimerTask timerTask;
+	/**
+	 * Gets the current number of activities handled by this RA entity.
+	 * @return
+	 */
+	public int getRaEntityActivitiesCount() {
+		int activitiesCount = 0;
+		try {
+			if(!this.state.isInactive()) {
+				for (ActivityContextHandle handle : sleeContainer.getActivityContextFactory().getAllActivityContextsHandles()) {
+					if (handle.getActivityType() == ActivityType.RA) {
+						ResourceAdaptorActivityContextHandle raHandle = (ResourceAdaptorActivityContextHandle) handle;
+						if (raHandle.getResourceAdaptorEntity().equals(this)) {
+							activitiesCount++;
+						}
+					}
+				}
+			}
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return activitiesCount;
+	}
+
+		private EndAllActivitiesRAEntityTimerTask timerTask;
 	
 	/**
 	 * Removes the entity, it will unconfigure and unset the ra context, the
@@ -706,7 +732,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public ActivityHandleReferenceFactory getHandleReferenceFactory() {

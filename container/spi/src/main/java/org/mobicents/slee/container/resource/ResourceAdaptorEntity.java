@@ -238,4 +238,9 @@ public interface ResourceAdaptorEntity {
 	public void updateConfigurationProperties(ConfigProperties properties)
 			throws InvalidConfigurationException, InvalidStateException;
 
+	/**
+	 * Gets the current number of activities handled by this RA entity.
+	 * @return
+	 */
+	public int getRaEntityActivitiesCount();
 }

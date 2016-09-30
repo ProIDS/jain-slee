@@ -275,12 +275,10 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 
 		if (state == ResourceAdaptorObjectState.ACTIVE || state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			if(stoppingGracefully) {
-				state = ResourceAdaptorObjectState.STOPPING_GRACEFULLY;
 				stopRaGracefully();
 			} else {
 				state = ResourceAdaptorObjectState.STOPPING;
 				object.raStopping();
-				raEntity
 			}
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
@@ -293,8 +291,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 		try {
 			method = object.getClass().getMethod(GracefullyStopableResourceAdaptor.RA_GRACEFUL_STOP_METHOD_NAME);
 			method.invoke(object);
+			state = ResourceAdaptorObjectState.STOPPING_GRACEFULLY;
+			if(!raEntity.hasActivities()) {
+				raEntity.allActivitiesEnded();
+			}
 			isSuccess = true;
-			raEntity.setState();
 		} catch (Throwable t) {
 			logger.warn("RA object of entity: " + raEntity.getName() + " does not support graceful stopping mode. Cause: " + t.getClass() + " " + t.getMessage());
 			if(doTraceLogs) {

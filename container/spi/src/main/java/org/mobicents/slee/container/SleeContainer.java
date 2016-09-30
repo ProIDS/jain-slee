@@ -137,6 +137,16 @@ public class SleeContainer {
 	private SleeState sleeState;
 	/** Indicates if SLEE is gracefully shutdown */
 	private boolean isGracefullyStopping = false;
+	/**
+	 * Graceful stop min activities threshold value.
+	 * When the number of all GS capable RA entities activities drops below this value then container shall be stopped in standard mode.
+	 */
+	private int gracefulStopActivitiesCountThreshold = Integer.MAX_VALUE;
+	/**
+	 * Graceful stop waiting time value in seconds.
+	 * When the contained is not stopped withing this time then it shall be stopped in standard mode.
+	 */
+	private long gracefulStopWaitTime = Long.MAX_VALUE;
 
 	// the class that actually posts events to the SBBs.
 	// This should be made into a facility and registered with jmx and jndi
@@ -525,6 +535,30 @@ public class SleeContainer {
 	 */
 	public boolean isGracefullyStopping() {
 		return this.isGracefullyStopping;
+	}
+
+	/**
+	 * Gets gracefulStopWaitTime value in seconds
+	 * @return Graceful Stop max Time
+	 */
+	public long getGracefulStopWaitTime() {
+		return gracefulStopWaitTime;
+	}
+
+	public void setGracefulStopWaitTime(long gracefulStopWaitTime) {
+		this.gracefulStopWaitTime = gracefulStopWaitTime;
+	}
+
+	/**
+	 * Gets gracefulStopActivitiesCountThreshold value
+	 * @return Graceful Stop Activities Count Threshold
+	 */
+	public int getGracefulStopActivitiesCountThreshold() {
+		return gracefulStopActivitiesCountThreshold;
+	}
+
+	public void setGracefulStopActivitiesCountThreshold(int gracefulStopActivitiesCountThreshold) {
+		this.gracefulStopActivitiesCountThreshold = gracefulStopActivitiesCountThreshold;
 	}
 
 	/**

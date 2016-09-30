@@ -88,6 +88,12 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	private ObjectName objectName;
 
+	/**
+	 * Graceful shutdown feature defaults config.
+	 */
+	private int defaultActiveSessionsThreshold;
+	private long defaultGracefulShutdownWaitTime;
+
 	static {
 		MBEAN_NOTIFICATIONS = new MBeanNotificationInfo[] { new MBeanNotificationInfo(
 				new String[] { SleeStateChangeNotification.class.getName() },
@@ -231,16 +237,64 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 						newState, oldState, sleeStateChangeSequenceNumber++));
 	}
 
-	/**
-	 * Requests SLEE container to enter graceful STOPPING state. Should do it in a non-blocking manner.
-	 */
-	public void gracefulStop() throws InvalidStateException, ManagementException {
-		logger.info("gracefulStop called");
-		stop(false, true);
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	public static void setLogger(Logger logger) {
+		SleeManagementMBeanImpl.logger = logger;
+	}
+
+	public int getDefaultActiveSessionsThreshold() {
+		return defaultActiveSessionsThreshold;
+	}
+
+	public void setDefaultActiveSessionsThreshold(int defaultActiveSessionsThreshold) {
+		this.defaultActiveSessionsThreshold = defaultActiveSessionsThreshold;
+		if(this.sleeContainer != null) {
+			this.sleeContainer.setGracefulStopActivitiesCountThreshold(defaultActiveSessionsThreshold);
+		}
+	}
+
+	public long getDefaultGracefulShutdownWaitTime() {
+		return defaultGracefulShutdownWaitTime;
+	}
+
+	public void setDefaultGracefulShutdownWaitTime(long defaultGracefulShutdownWaitTime) {
+		this.defaultGracefulShutdownWaitTime = defaultGracefulShutdownWaitTime;
+		if(this.sleeContainer != null) {
+			this.sleeContainer.setGracefulStopWaitTime(defaultGracefulShutdownWaitTime);
+		}
 	}
 
 	/**
 	 * Gracefully stop the SLEE. Should do it in a non-blocking manner.
+	 * Requests SLEE container to enter graceful STOPPING state.
+	 * @return Status and the number of active sessions remaining after invocation of Graceful Shutdown command
+	 */
+	public String gracefulStop(Integer ast, Long time) throws InvalidStateException, ManagementException {
+		if(ast != null && ast >= 0){
+			sleeContainer.setGracefulStopActivitiesCountThreshold(ast);
+		} else {
+			logger.info("Using default defaultActiveSessionsThreshold value for graceful shutdown (" + defaultActiveSessionsThreshold + ")" );
+			sleeContainer.setGracefulStopActivitiesCountThreshold(defaultActiveSessionsThreshold);
+		}
+		if(time != null && time > 0) {
+			sleeContainer.setGracefulStopWaitTime(time);
+		} else {
+			logger.info("Using default defaultGracefulShutdownWaitTime value for graceful shutdown (" + defaultGracefulShutdownWaitTime + ")");
+			sleeContainer.setGracefulStopWaitTime(defaultGracefulShutdownWaitTime);
+		}
+
+		logger.info("gracefulStop called. ast=" + sleeContainer.getGracefulStopActivitiesCountThreshold() + " time=" + sleeContainer.getGracefulStopWaitTime());
+
+		stop(false, true);
+
+		return "Container Graceful Shutdown requested successfully.";
+	}
+
+	/**
+	 * Stop the SLEE. Should do it in a non-blocking manner.
 	 * 
 	 * @see javax.slee.management.SleeManagementMBean#stop()
 	 */
@@ -251,7 +305,13 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	private void stop(final boolean block, final boolean graceful) throws InvalidStateException,
 			ManagementException {
 		try {
-			final SleeStateChangeRequest stoppingRequest = createStoppingRequest(block, graceful);
+			SleeStateChangeRequest stoppingRequest = null;
+			if(graceful) {
+				stoppingRequest = createGracefulStoppingRequest(block);
+			} else {
+				stoppingRequest = createStoppingRequest(block);
+
+			}
 			sleeContainer.setSleeState(stoppingRequest);
 
 		} catch (InvalidStateException ex) {
@@ -261,7 +321,50 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		}
 	}
 
-	private SleeStateChangeRequest createStoppingRequest(final boolean block, final boolean graceful) {
+	private SleeStateChangeRequest createGracefulStoppingRequest(final boolean block) {
+		// request to change to STOPPING (gracefully)
+		final SleeStateChangeRequest gracefulStoppingRequest = new SleeStateChangeRequest() {
+
+			@Override
+			public void stateChanged(SleeState oldState) {
+				logger.info(generateMessageWithLogo("gracefully stopping"));
+				notifyStateChange(oldState, getNewState());
+			}
+
+			@Override
+			public void requestCompleted() {
+				// inner request, executed when the parent completes, to stop other containers modules
+				if(logger.isInfoEnabled()) {
+					logger.info("Graceful stopping request completed. Stopping whole container.");
+				}
+
+				final SleeStateChangeRequest stoppingRequest = createStoppingRequest(block);
+				try {
+					sleeContainer.setSleeState(stoppingRequest);
+				} catch (Throwable e) {
+					logger.error("Failed to set whole container in STOPPING state", e);
+				}
+			}
+
+			@Override
+			public boolean isGraceful() {
+				return true;
+			}
+
+			@Override
+			public boolean isBlockingRequest() {
+				return block;
+			}
+
+			@Override
+			public SleeState getNewState() {
+				return SleeState.STOPPING;
+			}
+		};
+		return gracefulStoppingRequest;
+	}
+
+	private SleeStateChangeRequest createStoppingRequest(final boolean block) {
 			// request to change to STOPPING
 			final SleeStateChangeRequest stoppingRequest = new SleeStateChangeRequest() {
 
@@ -273,12 +376,6 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 				@Override
 				public void requestCompleted() {
-					if (graceful) {
-						if(logger.isTraceEnabled()) {
-							logger.trace("nothing to do in requestCompleted in graceful stopping mode");
-						}
-						return;
-					}
 					// inner request, executed when the parent completes, to change to STOPPED
 					final SleeStateChangeRequest stopRequest = createStopRequest();
 					try {
@@ -290,7 +387,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 				@Override
 				public boolean isGraceful() {
-					return graceful;
+					return false;
 				}
 
 				@Override

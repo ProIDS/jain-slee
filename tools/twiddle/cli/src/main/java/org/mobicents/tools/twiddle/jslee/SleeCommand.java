@@ -58,12 +58,16 @@ public class SleeCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <-operation>");
+		out.println("usage: " + name + " <-operation [--option=arg]*]>");
 		out.println();
 		out.println("operation:");
 		out.println("    -r, --start                     Starts container.");
 		out.println("    -s, --stop                      Stops container.");
 		out.println("    -g, --gracefulStop              Requests container to enter graceful stopping state.");
+		out.println("            --time                  Optionally specifies graceful shutdown waiting maximum time value in seconds. ");
+		out.println("            --ast                   Optionally specifies Active Sessions Threshold value (integer) as an argument ");
+		out.println("                                    When the number of active RA related activities drops below ");
+		out.println("                                    AST value then container is stopped in standard mode");
 		out.println("    -d, --shutdown                  Shutdowns container.");
 		out.println("    -i, --info                      Displays information about SLEE container(vendor, version, etc.).");
 		//no more supported, since we dont have subsystems?
@@ -86,6 +90,9 @@ public class SleeCommand extends AbstractSleeCommand {
 				new LongOpt("start", LongOpt.NO_ARGUMENT, null, 'r'),
 				new LongOpt("stop", LongOpt.NO_ARGUMENT, null, 's'),
 				new LongOpt("gracefulStop", LongOpt.NO_ARGUMENT, null, 'g'),
+				//options
+					new LongOpt("ast", LongOpt.REQUIRED_ARGUMENT, null, GracefulStopOperation.ast),
+					new LongOpt("time", LongOpt.REQUIRED_ARGUMENT, null, GracefulStopOperation.time),
 				new LongOpt("shutdown", LongOpt.NO_ARGUMENT, null, 'd'),
 				new LongOpt("info", LongOpt.NO_ARGUMENT, null, 'i'),
 				
@@ -180,6 +187,14 @@ public class SleeCommand extends AbstractSleeCommand {
 
 	private class GracefulStopOperation extends AbstractOperation {
 		private static final String OPERATION_graceful_stop = "gracefulStop";
+		public static final char ast = 'a';
+		public static final char time = 't';
+
+		//ast which must be present with 'a';
+		private String activeSessionThresholdStr = "-1";
+		//time which must be present with 't';
+		private String gracefulShutdownTimeStr = "-1";
+
 
 		public GracefulStopOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
@@ -188,9 +203,49 @@ public class SleeCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			// TODO Auto-generated method stub
+			// not perfect, it will swallow everything that matches. but its ok.
+			int code;
+			while ((code = opts.getopt()) != -1) {
+				switch (code) {
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+
+					case ast:
+						try {
+							activeSessionThresholdStr = opts.getOptarg();
+							Integer.parseInt(activeSessionThresholdStr);
+						} catch (Exception e) {
+								context.getErrorWriter().println("Failed to parse ast: " + activeSessionThresholdStr + " Exc: " + e.getMessage());
+								activeSessionThresholdStr = "-1";
+						}
+						break;
+					case time:
+						try {
+							gracefulShutdownTimeStr = opts.getOptarg();
+							Long.parseLong(gracefulShutdownTimeStr);
+						} catch (Exception e) {
+							context.getErrorWriter().println("Failed to parse time: " + activeSessionThresholdStr + " Exc: " + e.getMessage());
+							gracefulShutdownTimeStr = "-1";
+						}
+						break;
+					default:
+						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName() + "\", found unexpected opt: "
+								+ args[opts.getOptind() - 1]);
+				}
+
+			}
+			//Always set arguments as to enable defaults when no options is defined.
+			addArg(new Integer(activeSessionThresholdStr), Integer.class, false);
+			addArg(new Long(gracefulShutdownTimeStr), Long.class, false);
+
+			if (this.operationName == null) {
+				throw new CommandException(sleeCommand.getName() + " command requires option to be passed.");
+			}
 		}
+
 	}
 
 	private class ShutdownOperation extends AbstractOperation
