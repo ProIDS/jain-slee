@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>fault-tolerant-ra-parent</artifactId>
-		<version>proids-2.8.0-SNAPSHOT</version>
+		<version>proids-2.8.0</version>
 	</parent>
 
 	<artifactId>fault-tolerant-ra-impl</artifactId>
