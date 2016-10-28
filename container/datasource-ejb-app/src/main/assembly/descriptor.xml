@@ -1,0 +1,22 @@
+<assembly>
+    <!--
+    <id>datasourceEJBApp-${project.version}</id>
+    -->
+    <id>${project.version}</id>
+    <formats>
+        <format>ear</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+            <unpack>false</unpack>
+            <scope>runtime</scope>
+        </dependencySet>
+    </dependencySets>
+    <componentDescriptors>
+        <componentDescriptor>
+            src/main/assembly/common.xml
+        </componentDescriptor>
+    </componentDescriptors>
+</assembly>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+    <deployment>
+        <dependencies>
+        </dependencies>
+    </deployment>
+    <sub-deployment name="datasource-ejb-bean.jar">
+        <dependencies>
+            <module name="org.telestax.slee.container.lib"/>
+        </dependencies>
+    </sub-deployment>
+    
+</jboss-deployment-structure>

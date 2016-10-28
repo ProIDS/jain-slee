@@ -1,0 +1,12 @@
+<component>
+    <files>
+        <file>
+            <source>src/main/assembly/jboss-deployment-structure.xml</source>
+            <outputDirectory>META-INF</outputDirectory>
+        </file>
+        <file>
+            <source>datasource-ejb-bean/target/datasource-ejb-bean.jar</source>
+            <destName>datasource-ejb-bean.jar</destName>
+        </file>
+    </files>
+</component>
