@@ -43,6 +43,8 @@
 		<module>services</module>
 		<module>congestion</module>
 		<module>standard-components</module>
+		<module>datasource-ejb-interfaces</module>
+		<module>datasource-ejb-app</module>
 		<module>build</module>
 	</modules>
 
@@ -111,7 +113,7 @@
 				<slee.vendor>Telestax</slee.vendor>
 			</properties>			
 		</profile>
-		<!--
+
 		<profile>
 			<id>build-as72</id>
 			<activation>
@@ -127,7 +129,7 @@
 				<javassist.version>3.18.1-GA</javassist.version>
 			</properties>
 		</profile>
-		-->
+
 	</profiles>
 
 	<build>

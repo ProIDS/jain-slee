@@ -1,5 +1,5 @@
 <assembly>
-    <id>${project.version}</id>
+    <id>deployment</id>
     <formats>
         <format>ear</format>
     </formats>

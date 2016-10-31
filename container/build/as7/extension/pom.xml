@@ -396,7 +396,10 @@
 									<tasks>
 										<copy todir="${jboss.home}/modules/system/layers/base/${module.path}">
 											<fileset dir="${project.build.directory}/module"/>
-										</copy>										
+										</copy>
+										<copy todir="${jboss.home}/modules/system/layers/base/${module.path}/main/deployments">
+											<fileset dir="../../../datasource-ejb-app/target" includes="**/*.ear"/>
+										</copy>
 									</tasks>
 								</configuration>
 							</execution>
