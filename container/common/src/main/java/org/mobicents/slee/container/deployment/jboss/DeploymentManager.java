@@ -22,6 +22,21 @@
 
 package org.mobicents.slee.container.deployment.jboss;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.jboss.logging.Logger;
+import org.mobicents.slee.container.component.ComponentRepository;
+import org.mobicents.slee.container.datasource.SleeDataSourceInterface;
+import org.mobicents.slee.container.datasource.SleeDataSourceListener;
+import org.mobicents.slee.container.deployment.jboss.action.*;
+import org.mobicents.slee.container.management.ResourceManagement;
+
+import javax.naming.InitialContext;
+import javax.slee.ComponentID;
+import javax.slee.InvalidStateException;
+import javax.slee.management.DependencyException;
+import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
+import javax.slee.management.UnrecognizedLinkNameException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,23 +44,7 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-
-import javax.slee.ComponentID;
-import javax.slee.InvalidStateException;
-import javax.slee.management.DependencyException;
-import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
-import javax.slee.management.UnrecognizedLinkNameException;
-
-import org.jboss.logging.Logger;
-import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.deployment.jboss.action.ActivateResourceAdaptorEntityAction;
-import org.mobicents.slee.container.deployment.jboss.action.CreateResourceAdaptorEntityAction;
-import org.mobicents.slee.container.deployment.jboss.action.DeactivateResourceAdaptorEntityAction;
-import org.mobicents.slee.container.deployment.jboss.action.DeactivateServiceAction;
-import org.mobicents.slee.container.deployment.jboss.action.ManagementAction;
-import org.mobicents.slee.container.deployment.jboss.action.RemoveResourceAdaptorEntityAction;
-import org.mobicents.slee.container.deployment.jboss.action.UnbindLinkNameAction;
-import org.mobicents.slee.container.management.ResourceManagement;
+import java.util.concurrent.Semaphore;
 
 /**
  * This class represents the Manager responsible for executing deployment actions
@@ -55,7 +54,7 @@ import org.mobicents.slee.container.management.ResourceManagement;
  * @author martins
  * @version 1.0
  */
-public class DeploymentManager {
+public class DeploymentManager implements SleeDataSourceListener {
 
   // The Logger.
   private static Logger logger = Logger.getLogger(DeploymentManager.class);
@@ -77,9 +76,40 @@ public class DeploymentManager {
   public long waitTimeBetweenOperations = 250;
 
   private final SleeContainerDeployerImpl sleeContainerDeployer;
-  
+
+  private SleeDataSourceInterface dataSourceBean;
+  private Semaphore shutdownSemaphore = new Semaphore(0);
+
+  private class ShutdownThread extends Thread
+  {
+    public void run()
+    {
+      try {
+        sleeShutdown();
+      }
+      catch(Exception e)
+      {
+        logger.warn("Failure while run shutdown thread.", e);
+      }
+
+      shutdownSemaphore.release();
+    }
+  }
+
   public DeploymentManager(SleeContainerDeployerImpl sleeContainerDeployer) {
 	this.sleeContainerDeployer = sleeContainerDeployer;
+
+    try {
+      this.dataSourceBean = (SleeDataSourceInterface) new InitialContext()
+              .lookup("java:global/datasource-ejb-app/datasource-ejb-bean/SleeDataSourceBean!" +
+                      "org.mobicents.slee.container.datasource.SleeDataSourceInterface");
+      if (this.dataSourceBean != null) {
+        this.dataSourceBean.setListener(this);
+      }
+    }
+    catch (Exception e) {
+      logger.warn("Failure while lookup SleeDataSourceInterface");
+    }
   }
 
   /**
@@ -431,6 +461,22 @@ public class DeploymentManager {
 			  logger.error("Failed to uninstall DU, in SLEE shutdown",e);
 		  }
 	  }
+  }
+
+  public void shutdown()
+  {
+    ShutdownThread thread = new ShutdownThread();
+    thread.start();
+  }
+
+  public void waitForShutdownCompletion()
+  {
+    try {
+      shutdownSemaphore.acquire();
+    }
+    catch(InterruptedException e) {
+      logger.warn("Failure while acquire shutdown semaphore.", e);
+    }
   }
 
   /*

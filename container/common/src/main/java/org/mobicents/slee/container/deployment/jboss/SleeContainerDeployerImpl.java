@@ -221,8 +221,8 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	public void sleeShutdown() {
 		synchronized (this) {
 			shutdown = true;
-			// let the deployment manager know about that, it will undeploy DUs
-			deploymentManager.sleeShutdown();
+			// now the deployment manager starts shutdown when datasource EJB bean is destroyed
+			// see deploymentManager.shutdown();
 		}		
 	}
 

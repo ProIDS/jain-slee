@@ -12,11 +12,16 @@
 	<dependencies>				
 		
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>spi</artifactId>
-			<version>${pom.version}</version>
-		</dependency>	
-				
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>datasource-ejb-interfaces</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
 		<!-- misc -->
 		
 		<dependency>
@@ -44,7 +49,6 @@
 			<groupId>junit</groupId>
 			<scope>test</scope>
 		</dependency>
-					
-	</dependencies>
+    </dependencies>
 	
 </project>
