@@ -1,10 +1,12 @@
 package org.telestax.slee.container.build.as7.deployment;
 
 import org.jboss.as.server.deployment.*;
+import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.logging.Logger;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
+import org.jboss.vfs.VirtualFile;
 import org.telestax.slee.container.build.as7.service.SleeContainerService;
 import org.telestax.slee.container.build.as7.service.SleeServiceNames;
 
@@ -29,6 +31,13 @@ public class SleeDeploymentInstallProcessor implements DeploymentUnitProcessor {
     @Override
     public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
+        final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
+
+        final VirtualFile descriptor = deploymentRoot.getRoot().getChild("META-INF/deployable-unit.xml");
+        if (descriptor == null || !descriptor.exists()) {
+            return;
+        }
+
         log.info("Deploy: "+deploymentUnit);
 
         final URL deployableUnitJarURL = SleeDeploymentMarker.getDeployableUnitJarURL(deploymentUnit);
@@ -41,9 +50,6 @@ public class SleeDeploymentInstallProcessor implements DeploymentUnitProcessor {
             return;
         }
 
-        //SleeDeploymentMarker.setDeployableUnitJarURL(deploymentUnit, null);
-        //SleeDeploymentMarker.setDeployableUnitJarMetaData(deploymentUnit, null);
-
         ExternalDeployerImpl externalDeployer = getExternalDeployer(phaseContext.getServiceRegistry(), SleeServiceNames.SLEE_CONTAINER);
         if (externalDeployer != null) {
             externalDeployer.deploy(deploymentUnit, deployableUnitJarURL, deployableUnitJarMetaData, null);
@@ -53,18 +59,22 @@ public class SleeDeploymentInstallProcessor implements DeploymentUnitProcessor {
     @Override
     public void undeploy(DeploymentUnit deploymentUnit) {
         log.info("Undeploy: "+deploymentUnit);
+        final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
+
+        final VirtualFile descriptor = deploymentRoot.getRoot().getChild("META-INF/deployable-unit.xml");
+        if (descriptor == null || !descriptor.exists()) {
+            return;
+        }
 
     	final URL deployableUnitJarURL = SleeDeploymentMarker.getDeployableUnitJarURL(deploymentUnit);
         if (deployableUnitJarURL == null) {
         	return;
         }
+
         final SleeDeploymentMetaData deployableUnitJarMetaData = SleeDeploymentMarker.getDeployableUnitJarMetaData(deploymentUnit);
         if (deployableUnitJarMetaData == null) {
             return;
         }
-
-        //SleeDeploymentMarker.setDeployableUnitJarURL(deploymentUnit, null);
-        //SleeDeploymentMarker.setDeployableUnitJarMetaData(deploymentUnit, null);
 
         ExternalDeployerImpl externalDeployer = getExternalDeployer(deploymentUnit.getServiceRegistry(), SleeServiceNames.SLEE_CONTAINER);
         if (externalDeployer != null) {

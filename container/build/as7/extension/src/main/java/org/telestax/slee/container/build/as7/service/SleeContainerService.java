@@ -104,8 +104,6 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final SleeContainerDeployerImpl internalDeployer = new SleeContainerDeployerImpl();
 		internalDeployer.setExternalDeployer(this.externalDeployer);
 
-		log.debug("TransactionManager: "+getTransactionManager().getValue());
-
 		// inits the SLEE cache and cluster
 		final MobicentsCache cache = initCache();
 		final MobicentsCluster cluster = new DefaultMobicentsCluster(cache,
@@ -114,9 +112,6 @@ public class SleeContainerService implements Service<SleeContainer> {
 		// init the tx manager
 		final SleeTransactionManager sleeTransactionManager = new SleeTransactionManagerImpl(
 				getTransactionManager().getValue());
-		log.debug("SLEE TransactionManager: "+sleeTransactionManager);
-
-		log.debug("TransactionManager Class: "+sleeTransactionManager.getRealTransactionManager().getClass().getName());
 
 		final TraceMBeanImpl traceMBean = new TraceMBeanImpl();
 		
@@ -301,6 +296,11 @@ public class SleeContainerService implements Service<SleeContainer> {
 							log.error("Cannot get URL for deployable unit: " + ex.getLocalizedMessage());
 						}
 
+						final VirtualFile descriptor = deploymentVfs.getChild("META-INF/deployable-unit.xml");
+						if (descriptor == null || !descriptor.exists()) {
+							return;
+						}
+
 						SleeDeploymentMetaData deploymentMetaData = new SleeDeploymentMetaData(deploymentVfs);
 						((ExternalDeployerImpl) externalDeployer)
 							.deploy(null, deploymentRootURL, deploymentMetaData, deploymentVfs);
@@ -354,7 +354,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 			getMbeanServer().getValue().unregisterMBean(new ObjectName(name));
 		} catch (Throwable e) {
 			log.error("failed to unregister mbean", e);
-		}		
+		}
 	}
 	
 	public InjectedValue<MBeanServer> getMbeanServer() {
