@@ -31,6 +31,7 @@ import org.mobicents.slee.container.deployment.jboss.action.*;
 import org.mobicents.slee.container.management.ResourceManagement;
 
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.slee.ComponentID;
 import javax.slee.InvalidStateException;
 import javax.slee.management.DependencyException;
@@ -77,7 +78,7 @@ public class DeploymentManager implements SleeDataSourceListener {
 
   private final SleeContainerDeployerImpl sleeContainerDeployer;
 
-  private SleeDataSourceInterface dataSourceBean;
+  private SleeDataSourceInterface dataSourceBean = null;
   private Semaphore shutdownSemaphore = new Semaphore(0);
 
   private class ShutdownThread extends Thread
@@ -100,12 +101,23 @@ public class DeploymentManager implements SleeDataSourceListener {
 	this.sleeContainerDeployer = sleeContainerDeployer;
 
     try {
-      this.dataSourceBean = (SleeDataSourceInterface) new InitialContext()
-              .lookup("java:global/datasource-ejb-app/datasource-ejb-bean/SleeDataSourceBean!" +
-                      "org.mobicents.slee.container.datasource.SleeDataSourceInterface");
-      if (this.dataSourceBean != null) {
-        this.dataSourceBean.setListener(this);
+      // wait for datasource EJB app deploying and startup
+      while (this.dataSourceBean == null) {
+        try {
+          this.dataSourceBean = (SleeDataSourceInterface) new InitialContext()
+                  .lookup("java:global/datasource-ejb-app/datasource-ejb-bean/SleeDataSourceBean!" +
+                          "org.mobicents.slee.container.datasource.SleeDataSourceInterface");
+          //Thread.sleep(20);
+        }
+        catch (NamingException e1) {
+          try {
+            Thread.sleep(20);
+          } catch (InterruptedException e2) {
+          }
+        }
       }
+
+      this.dataSourceBean.setListener(this);
     }
     catch (Exception e) {
       logger.warn("Failure while lookup SleeDataSourceInterface");
