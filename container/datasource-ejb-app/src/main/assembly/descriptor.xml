@@ -1,7 +1,4 @@
 <assembly>
-    <!--
-    <id>datasourceEJBApp-${project.version}</id>
-    -->
     <id>${project.version}</id>
     <formats>
         <format>ear</format>
