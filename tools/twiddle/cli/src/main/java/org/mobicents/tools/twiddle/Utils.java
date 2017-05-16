@@ -28,19 +28,21 @@ public final class Utils {
 	private Utils()
 	{
 		//no need for instances.
-		
+
 	}
 
 	//standard jmx mgmt from specs
 	public static final String SLEE_ALARM = javax.slee.management.AlarmMBean.OBJECT_NAME;
 	public static final String SLEE_DEPLOYMENT = javax.slee.management.DeploymentMBean.OBJECT_NAME;
 	public static final String SLEE_PROFILE_PROVISIONING = javax.slee.management.ProfileProvisioningMBean.OBJECT_NAME;
-	public static final String SLEE_RESOURCE_MANAGEMENT = javax.slee.management.ResourceManagementMBean.OBJECT_NAME;
+	//TODO delete
+//	public static final String SLEE_RESOURCE_MANAGEMENT = javax.slee.management.ResourceManagementMBean.OBJECT_NAME;
+	public static final String SLEE_RESOURCE_MANAGEMENT = org.mobicents.slee.container.management.jmx.ResourceManagementMBeanImplMBean.OBJECT_NAME;
 	public static final String SLEE_SERVICE_MANAGEMENT = javax.slee.management.ServiceManagementMBean.OBJECT_NAME;
 	public static final String SLEE_MANAGEMENT = javax.slee.management.SleeManagementMBean.OBJECT_NAME;
 	public static final String SLEE_TRACE = javax.slee.management.TraceMBean.OBJECT_NAME;
 
-	
+
 	//some restcomm specific;
 	public static final String MC_ACTIVITY_MANAGEMENT = "org.mobicents.slee:name=ActivityManagementMBean";
 	public static final String MC_CONGESTION_CONTROL = "org.mobicents.slee:name=CongestionControlConfiguration";

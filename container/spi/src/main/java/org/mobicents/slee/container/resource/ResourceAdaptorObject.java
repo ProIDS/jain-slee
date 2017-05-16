@@ -21,7 +21,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.mobicents.slee.container.resource;
 
@@ -51,14 +51,16 @@ public interface ResourceAdaptorObject {
 
 	/**
 	 * Retrieves the current ra object configuration
-	 * 
+	 *
 	 * @return
 	 */
 	public ConfigProperties getConfigProperties();
 
+	public ResourceAdaptor getObject();
+
 	/**
 	 * Retrieves the current ra object state
-	 * 
+	 *
 	 * @return
 	 */
 	public ResourceAdaptorObjectState getState();
@@ -68,7 +70,7 @@ public interface ResourceAdaptorObject {
 	/**
 	 * Sets the ra context. If the operation succeeds the ra will transition to
 	 * UNCONFIGURED state.
-	 * 
+	 *
 	 * @param context
 	 *            the context to provide to the ra object
 	 * @throws InvalidStateException
@@ -76,10 +78,10 @@ public interface ResourceAdaptorObject {
 	 */
 	public void setResourceAdaptorContext(ResourceAdaptorContext context)
 			throws InvalidStateException;
-	
+
 	/**
-	 * Sets the ft ra context. 
-	 * 
+	 * Sets the ft ra context.
+	 *
 	 * @param context
 	 *            the context to provide to the ra object
 	 * @throws IllegalArgumentException
@@ -87,10 +89,10 @@ public interface ResourceAdaptorObject {
 	 */
 	public void setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext<Serializable, Serializable> context)
 			throws IllegalArgumentException;
-	
+
 	/**
 	 * Configures the ra.
-	 * 
+	 *
 	 * @param properties
 	 * @throws InvalidConfigurationException
 	 *             if the configuration, after merging the specified properties
@@ -102,7 +104,7 @@ public interface ResourceAdaptorObject {
 
 	/**
 	 * Updates the ra configuration.
-	 * 
+	 *
 	 * @param properties
 	 * @throws InvalidConfigurationException
 	 *             if the configuration, after merging the specified properties
@@ -115,7 +117,7 @@ public interface ResourceAdaptorObject {
 	/**
 	 * Requests the activation of the ra object. If the operation succeeds the
 	 * ra will transition to ACTIVE state.
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 *             if the ra object is not in INACTIVE state
 	 */
@@ -124,16 +126,16 @@ public interface ResourceAdaptorObject {
 	/**
 	 * Requests the stopping of the ra object. If the operation succeeds the ra
 	 * will transition to STOPPING state.
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 *             if the ra object is not in ACTIVE state
 	 */
-	public void raStopping() throws InvalidStateException;
+	public void raStopping(boolean isGraceful) throws InvalidStateException;
 
 	/**
 	 * Requests the deactivation of the ra object. If the operation succeeds the
 	 * ra will transition to INACTIVE state.
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 *             if the ra object is not in STOPPING state
 	 */
@@ -141,7 +143,7 @@ public interface ResourceAdaptorObject {
 
 	/**
 	 * Unconfigures the ra object
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 *             if the ra object is not in INACTIVE state
 	 */
@@ -149,20 +151,20 @@ public interface ResourceAdaptorObject {
 
 	/**
 	 * Unsets the context of the ra object.
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 *             if the ra object is not in UNCONFIGURED state
 	 */
 	public void unsetResourceAdaptorContext() throws InvalidStateException;
-	
+
 	/**
 	 * Unsets the ft context of the ra object.
-	 * 
+	 *
 	 * @throws IllegalArgumentException
 	 *             if the ra object is not in fault tolerant
 	 */
 	public void unsetFaultTolerantResourceAdaptorContext() throws IllegalArgumentException;
-	
+
 	/**
 	 * @see ResourceAdaptor#getResourceAdaptorInterface(ResourceAdaptorTypeID)
 	 */
@@ -197,13 +199,13 @@ public interface ResourceAdaptorObject {
 	 * @return null if the activity does not belongs to this ra object
 	 */
 	public ActivityHandle getActivityHandle(Object activity);
-	
+
 	/**
 	 * @see ResourceAdaptor#getActivity(ActivityHandle)
 	 * @param handle
 	 */
 	public Object getActivity(ActivityHandle handle);
-	
+
 	/**
 	 * @see ResourceAdaptor#activityEnded(ActivityHandle)
 	 * @param handle
@@ -214,20 +216,20 @@ public interface ResourceAdaptorObject {
 	 * @see ResourceAdaptor#administrativeRemove(ActivityHandle)
 	 * @param handle
 	 */
-    public void administrativeRemove(ActivityHandle handle);
-    
-    /**
-     * @see ResourceAdaptor#activityUnreferenced(ActivityHandle)
-     * @param handle
-     */
+	public void administrativeRemove(ActivityHandle handle);
+
+	/**
+	 * @see ResourceAdaptor#activityUnreferenced(ActivityHandle)
+	 * @param handle
+	 */
 	public void activityUnreferenced(ActivityHandle handle);
-	
+
 	/**
 	 * @see ResourceAdaptor#queryLiveness(ActivityHandle)
 	 * @param activityHandle
 	 */
 	public void queryLiveness(ActivityHandle activityHandle);
-	
+
 	/**
 	 * @see ResourceAdaptor#eventProcessingFailed(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int, FailureReason)
 	 * @param handle
@@ -238,32 +240,32 @@ public interface ResourceAdaptorObject {
 	 * @param flags
 	 * @param reason
 	 */
-    public void eventProcessingFailed(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags, FailureReason reason);
-    
-    /**
-     * @see ResourceAdaptor#eventProcessingSuccessful(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int)
-     * @param handle
-     * @param eventType
-     * @param event
-     * @param address
-     * @param service
-     * @param flags
-     */
-    public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags);
+	public void eventProcessingFailed(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags, FailureReason reason);
 
-    /**
-     * @see ResourceAdaptor#eventUnreferenced(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int)
-     * @param handle
-     * @param eventType
-     * @param event
-     * @param address
-     * @param service
-     * @param flags
-     */
-    public void eventUnreferenced(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags);    
+	/**
+	 * @see ResourceAdaptor#eventProcessingSuccessful(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int)
+	 * @param handle
+	 * @param eventType
+	 * @param event
+	 * @param address
+	 * @param service
+	 * @param flags
+	 */
+	public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags);
 
-    public boolean isFaultTolerant();
-    
-    ResourceAdaptor getResourceAdaptorObject();
-    
+	/**
+	 * @see ResourceAdaptor#eventUnreferenced(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int)
+	 * @param handle
+	 * @param eventType
+	 * @param event
+	 * @param address
+	 * @param service
+	 * @param flags
+	 */
+	public void eventUnreferenced(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags);
+
+	public boolean isFaultTolerant();
+
+	ResourceAdaptor getResourceAdaptorObject();
+
 }

@@ -44,6 +44,7 @@ import org.mobicents.slee.container.deployment.jboss.action.ActivateResourceAdap
 import org.mobicents.slee.container.deployment.jboss.action.BindLinkNameAction;
 import org.mobicents.slee.container.deployment.jboss.action.CreateResourceAdaptorEntityAction;
 import org.mobicents.slee.container.deployment.jboss.action.DeactivateResourceAdaptorEntityAction;
+import org.mobicents.slee.container.deployment.jboss.action.GracefulShutdownResourceAdaptorEntityAction;
 import org.mobicents.slee.container.deployment.jboss.action.ManagementAction;
 import org.mobicents.slee.container.deployment.jboss.action.RemoveResourceAdaptorEntityAction;
 import org.mobicents.slee.container.deployment.jboss.action.UnbindLinkNameAction;
@@ -59,9 +60,9 @@ import org.xml.sax.SAXParseException;
 /**
  * Parses a deploy-config.xml file, creating management actions from its
  * content.
- * 
+ *
  * @author martins
- * 
+ *
  */
 public class DeployConfigParser {
 
@@ -82,11 +83,11 @@ public class DeployConfigParser {
 
 	/**
 	 * Parser for the deployment config xml.
-	 * 
+	 *
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 * @throws IOException
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void parseDeployConfig(InputStream deployConfigInputStream,
@@ -225,6 +226,8 @@ public class DeployConfigParser {
 			// Add the Deactivate and Remove RA Entity actions to the
 			// Pre-Uninstall Actions
 			cPreUninstallActions.add(new DeactivateResourceAdaptorEntityAction(
+					entityName, resourceManagement));
+			cPreUninstallActions.add(new GracefulShutdownResourceAdaptorEntityAction(
 					entityName, resourceManagement));
 			cPreUninstallActions.add(new RemoveResourceAdaptorEntityAction(
 					entityName, resourceManagement));

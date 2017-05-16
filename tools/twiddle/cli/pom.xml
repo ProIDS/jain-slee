@@ -37,6 +37,10 @@
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 		</dependency>
 		<dependency>
+			<artifactId>resource</artifactId>
+			<groupId>org.mobicents.servers.jainslee.core</groupId>
+		</dependency>
+		<dependency>
 			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
 		</dependency>
@@ -382,10 +386,10 @@
 										jbossx-security-client.jar
 									</destFileName>
 								</artifactItem>
-								
-								
-									
-								
+
+
+
+
 								<artifactItem>
 									<groupId>org.jboss.integration</groupId>
 									<artifactId>jboss-transaction-spi</artifactId>
@@ -411,7 +415,7 @@
 										${tool.directory.lib}
 									</outputDirectory>
 									<destFileName>
-										dom4j.jar  
+										dom4j.jar
 									</destFileName>
 								</artifactItem>
 							</artifactItems>

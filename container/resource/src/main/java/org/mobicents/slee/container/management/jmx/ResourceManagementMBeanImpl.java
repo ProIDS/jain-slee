@@ -46,10 +46,10 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ResourceManagementImpl;
 
 /**
- * 
+ *
  * @author Stefano Zappaterra
  * @author Eduardo Martins
- * 
+ *
  */
 public class ResourceManagementMBeanImpl extends MobicentsServiceMBeanSupport implements
 		ResourceManagementMBeanImplMBean {
@@ -67,7 +67,7 @@ public class ResourceManagementMBeanImpl extends MobicentsServiceMBeanSupport im
 	// ------- MANAGEMENT OPERATIONS
 
 	public void createResourceAdaptorEntity(ResourceAdaptorID id,
-			String entityName, ConfigProperties properties)
+																					String entityName, ConfigProperties properties)
 			throws NullPointerException, InvalidArgumentException,
 			UnrecognizedResourceAdaptorException,
 			ResourceAdaptorEntityAlreadyExistsException,
@@ -135,6 +135,27 @@ public class ResourceManagementMBeanImpl extends MobicentsServiceMBeanSupport im
 		}
 	}
 
+	public void gracefulShutdownResourceAdaptorEntity(String entityName, Integer ast, Long time)
+			throws NullPointerException,
+			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
+			ManagementException {
+		try {
+			synchronized (getSleeContainer().getManagementMonitor()) {
+				resourceManagement.gracefulShutdownResourceAdaptorEntity(entityName, ast, time);
+			}
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (UnrecognizedResourceAdaptorEntityException e) {
+			throw e;
+		} catch (InvalidStateException e) {
+			throw e;
+		} catch (Throwable e) {
+			String s = "failed to deactivate RA entity with name " + entityName + "and paramaters: ast=" + ast + ", time= " + time;
+			logger.error(s, e);
+			throw new ManagementException(s, e);
+		}
+	}
+
 	public void removeResourceAdaptorEntity(String entityName)
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
@@ -159,7 +180,7 @@ public class ResourceManagementMBeanImpl extends MobicentsServiceMBeanSupport im
 	}
 
 	public void updateConfigurationProperties(String entityName,
-			ConfigProperties properties) throws NullPointerException,
+																						ConfigProperties properties) throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
 			InvalidConfigurationException, ManagementException {
 		try {

@@ -66,12 +66,12 @@ public class SleeCommandInterface {
 		this.user = user;
 		this.password = password;
 		setCallPrincipials();
-		
+
 	}
-	
+
 	/**
 	 * Constructor that takes a JNDI url
-	 * 
+	 *
 	 * @param jndiurl
 	 *            JNDI Url (jnp://localhost:1099)
 	 */
@@ -97,7 +97,7 @@ public class SleeCommandInterface {
 				"org.jnp.interfaces.NamingContextFactory");
 		env.put(Context.URL_PKG_PREFIXES, "org.jnp.interfaces");
 		if (user != null) {
-			
+
 			env.put(Context.SECURITY_CREDENTIALS   , password);
 			env.put(Context.SECURITY_PRINCIPAL     , user);
 		}
@@ -109,7 +109,7 @@ public class SleeCommandInterface {
 		if (rmiserver == null)
 			logger.info("RMIAdaptor is null");
 	}
-	
+
 	private void setCallPrincipials() {
 
 		if (user != null) {
@@ -122,11 +122,11 @@ public class SleeCommandInterface {
 		}
 
 	}
-	
+
 
 	/**
 	 * Get the Metadata for the MBean
-	 * 
+	 *
 	 * @param oname
 	 *            ObjectName of the MBean
 	 * @return MBeanInfo about the MBean
@@ -141,7 +141,7 @@ public class SleeCommandInterface {
 
 	/**
 	 * Invoke an Operation on the MBean
-	 * 
+	 *
 	 * @param oname
 	 *            ObjectName of the MBean
 	 * @param methodname
@@ -154,19 +154,19 @@ public class SleeCommandInterface {
 	 * @throws Exception
 	 */
 	public Object invokeCommand(ObjectName oname, String methodname,
-			Object[] pParams, String[] pSignature) throws Exception {
+															Object[] pParams, String[] pSignature) throws Exception {
 		setCallPrincipials();
 		return rmiserver.invoke(oname, methodname, pParams, pSignature);
 	}
 
 	/**
 	 * Invoke an Operation on the MBean
-	 * 
+	 *
 	 * @param oname
 	 *            ObjectName of the MBean
 	 * @param Attribute
 	 *            Name of the Attribute on the MBean
-	 * 
+	 *
 	 * @return result from the MBean operation
 	 * @throws Exception
 	 */
@@ -184,22 +184,23 @@ public class SleeCommandInterface {
 	public static final String ACTIVATE_SERVICE_OPERATION = "-activateService";
 	public static final String DEACTIVATE_SERVICE_OPERATION = "-deactivateService";
 	public static final String GET_SERVICE_STATE_OPERATION = "-getServiceState";
-	
+
 	public static final String CREATE_RA_ENTITY_OPERATION = "-createRaEntity";
 	public static final String ACTIVATE_RA_ENTITY_OPERATION = "-activateRaEntity";
 	public static final String DEACTIVATE_RA_ENTITY_OPERATION = "-deactivateRaEntity";
+	public static final String GRACEFUL_SHUTDOWN_RA_ENTITY_OPERATION = "-gracefulShutdownRaEntity";
 	public static final String REMOVE_RA_ENTITY_OPERATION = "-removeRaEntity";
 	public static final String CREATE_RA_LINK_OPERATION = "-createRaLink";
 	public static final String REMOVE_RA_LINK_OPERATION = "-removeRaLink";
-	
+
 	public static final String CREATE_PROFILE_TABLE_OPERATION = "-createProfileTable";
 	public static final String REMOVE_PROFILE_TABLE_OPERATION = "-removeProfileTable";
 	public static final String CREATE_PROFILE_OPERATION = "-createProfile";
 	public static final String REMOVE_PROFILE_OPERATION = "-removeProfile";
-	
+
 	/**
 	 * Invoking operations
-	 * 
+	 *
 	 * @param command
 	 *            indicate the operation
 	 * @param data#
@@ -207,7 +208,7 @@ public class SleeCommandInterface {
 	 * @throws Exception
 	 */
 	public Object invokeOperation(String command, String data1, String data2,
-			String data3) throws Exception {
+																String data3) throws Exception {
 		ObjectName name = null;
 
 		Object opArg1 = null;
@@ -276,8 +277,14 @@ public class SleeCommandInterface {
 			commandString = "activateResourceAdaptorEntity";
 			opArg1 = data1;
 		} else if (command.equals(DEACTIVATE_RA_ENTITY_OPERATION)) {
+			//TODO czy potrzebne?
+//			commandBean = org.mobicents.slee.container.management.jmx.ResourceManagementMBeanImplMBean.OBJECT_NAME;
 			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "deactivateResourceAdaptorEntity";
+			opArg1 = data1;
+		} else if (command.equals(GRACEFUL_SHUTDOWN_RA_ENTITY_OPERATION)) {
+			commandBean = ResourceManagementMBean.OBJECT_NAME;
+			commandString = "gracefulShutdownResourceAdaptorEntity";
 			opArg1 = data1;
 		} else if (command.equals(REMOVE_RA_ENTITY_OPERATION)) {
 			commandBean = ResourceManagementMBean.OBJECT_NAME;

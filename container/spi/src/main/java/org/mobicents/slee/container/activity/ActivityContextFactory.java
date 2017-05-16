@@ -21,44 +21,46 @@
  */
 
 /**
- * 
+ *
  */
 package org.mobicents.slee.container.activity;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.resource.ActivityAlreadyExistsException;
 
 import org.mobicents.slee.container.SleeContainerModule;
+import org.mobicents.slee.runtime.activity.LocalActivityContextImpl;
 
 /**
  * @author martins
- * 
+ *
  */
 public interface ActivityContextFactory extends SleeContainerModule {
 
 	/**
-	 * 
+	 *
 	 * @param activityContext
 	 * @param activityFlags
 	 * @throws ActivityAlreadyExistsException
 	 */
-	public ActivityContext createActivityContext(ActivityContextHandle ach,
-			int activityFlags) throws ActivityAlreadyExistsException;
+	public ActivityContext createActivityContext(ActivityContextHandle activityContext,
+																							 int activityFlags) throws ActivityAlreadyExistsException;
 
 	/**
 	 * Retrieves the {@link ActivityContext} for the specified
 	 * {@link ActivityContextHandle}. Same as getActivityContext(ach,false).
-	 * 
+	 *
 	 * @param ach
 	 * @return null if no such activity context exists
 	 */
 	public ActivityContext getActivityContext(ActivityContextHandle ach);
-	
+
 	/**
 	 * Retrieves the {@link ActivityContext} for the specified
 	 * {@link ActivityContextHandle}.
-	 * 
+	 *
 	 * @param ach
 	 * @param updateLastAccessTime
 	 *            indicates if an update of last access time is needed. Note
@@ -68,20 +70,20 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 * @return null if no such activity context exists
 	 */
 	public ActivityContext getActivityContext(ActivityContextHandle ach,
-			boolean updateLastAccessTime);
-	
+																						boolean updateLastAccessTime);
+
 	/**
 	 * Retrieves the {@link ActivityContext} for the specified string id.
 	 * Same as getActivityContext(sid,false).
-	 * 
+	 *
 	 * @param sid
 	 * @return null if no such activity context exists
 	 */
 	public ActivityContext getActivityContext(String sid);
-	
+
 	/**
 	 * Retrieves the {@link ActivityContext} for the specified string id.
-	 * 
+	 *
 	 * @param sid
 	 * @param updateLastAccessTime
 	 *            indicates if an update of last access time is needed. Note
@@ -91,7 +93,7 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 * @return null if no such activity context exists
 	 */
 	public ActivityContext getActivityContext(String sid,
-			boolean updateLastAccessTime);
+																						boolean updateLastAccessTime);
 
 	/**
 	 * @return Set of all registered SLEE activity context handles
@@ -105,10 +107,12 @@ public interface ActivityContextFactory extends SleeContainerModule {
 
 	/**
 	 * Indicates if the activity context exists in SLEE.
-	 * 
+	 *
 	 * @param ach
 	 * @return
 	 */
 	public boolean activityContextExists(ActivityContextHandle ach);
+
+	ConcurrentHashMap<ActivityContextHandle, LocalActivityContextImpl> getLocalActivityContexts();
 
 }

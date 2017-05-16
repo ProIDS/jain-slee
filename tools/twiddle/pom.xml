@@ -56,6 +56,11 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<artifactId>resource</artifactId>
+				<groupId>org.mobicents.servers.jainslee.core</groupId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>javax.slee</groupId>
 				<artifactId>jain-slee</artifactId>
 				<version>${jain-slee.version}</version>
@@ -134,7 +139,7 @@
 				<artifactId>jboss-transaction-spi</artifactId>
 				<version>${jboss.version}</version>
 			</dependency>
-			
+
 		</dependencies>
 	</dependencyManagement>
 
@@ -166,7 +171,7 @@
 			<modules>
 				<module>docs</module>
 				<module>release</module>
-			</modules>			
+			</modules>
 		</profile>
 		<profile>
 			<id>release</id>
@@ -176,7 +181,7 @@
 			</modules>
 		</profile>
 	</profiles>
-	
+
 	<build>
 		<plugins>
 			<plugin>

@@ -21,7 +21,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.mobicents.slee.container.resource;
 
@@ -49,13 +49,13 @@ import java.util.Set;
 
 /**
  * @author martins
- * 
+ *
  */
 public interface ResourceAdaptorEntity {
 
 	/**
 	 * Activates the ra entity
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 *             if the entity is not in INACTIVE state
 	 */
@@ -64,9 +64,9 @@ public interface ResourceAdaptorEntity {
 	/**
 	 * Callback to notify the entity and possibly the ra object, informing
 	 * activity handled ended.
-	 * 
+	 *
 	 * @see ResourceAdaptor#activityEnded(ActivityHandle)
-	 * 
+	 *
 	 * @param handle
 	 * @param activityFlags
 	 */
@@ -76,12 +76,15 @@ public interface ResourceAdaptorEntity {
 
 	/**
 	 * Deactivates the ra entity
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 *             if the entity is not in ACTIVE state
 	 * @throws TransactionRequiredLocalException
 	 */
-	public void deactivate() throws InvalidStateException,
+	public void deactivate(boolean isGraceful) throws InvalidStateException,
+			TransactionRequiredLocalException;
+
+	public void forceDeactivation() throws InvalidStateException,
 			TransactionRequiredLocalException;
 
 	/**
@@ -95,27 +98,27 @@ public interface ResourceAdaptorEntity {
 
 	/**
 	 * Retrieves a set containing event types allowed to be fire by this entity
-	 * 
+	 *
 	 * @return null if the ra ignores event type checking
 	 */
 	public Set<EventTypeID> getAllowedEventTypes();
 
 	/**
 	 * Retrieves ra component related to this entity
-	 * 
+	 *
 	 * @return
 	 */
 	public ResourceAdaptorComponent getComponent();
 
 	/**
 	 * Retrieves the active config properties for the entity
-	 * 
+	 *
 	 * @return
 	 */
 	public ConfigProperties getConfigurationProperties();
 
 	/**
-	 * 
+	 *
 	 * @param eventTypeID
 	 * @return
 	 */
@@ -123,27 +126,27 @@ public interface ResourceAdaptorEntity {
 
 	/**
 	 * Retrieves the marshaller from the ra object, if exists
-	 * 
+	 *
 	 * @return
 	 */
 	public Marshaler getMarshaler();
 
 	/**
 	 * Retrieves the ra entity name
-	 * 
+	 *
 	 * @return
 	 */
 	public String getName();
 
 	/**
 	 * Return Notification source representing this RA Entity
-	 * 
+	 *
 	 * @return
 	 */
 	public NotificationSource getNotificationSource();
 
 	/**
-	 * 
+	 *
 	 * @param serviceID
 	 * @return
 	 */
@@ -151,14 +154,14 @@ public interface ResourceAdaptorEntity {
 
 	/**
 	 * Retrieves the id of the resource adaptor for this entity
-	 * 
+	 *
 	 * @return
 	 */
 	public ResourceAdaptorID getResourceAdaptorID();
 
 	/**
 	 * Retrieves the ra interface for this entity and the specified ra type
-	 * 
+	 *
 	 * @param raType
 	 * @return
 	 */
@@ -168,21 +171,21 @@ public interface ResourceAdaptorEntity {
 
 	/**
 	 * Retrieves the ra object
-	 * 
+	 *
 	 * @return
 	 */
 	public ResourceAdaptorObject getResourceAdaptorObject();
 
 	/**
 	 * Retrieves the resource usage mbean for this ra, may be null
-	 * 
+	 *
 	 * @return
 	 */
 	public ResourceUsageMBean getResourceUsageMBean();
 
 	/**
 	 * Retrieves the ra entity state
-	 * 
+	 *
 	 * @return
 	 */
 	public ResourceAdaptorEntityState getState();
@@ -190,7 +193,7 @@ public interface ResourceAdaptorEntity {
 	/**
 	 * Removes the entity, it will unconfigure and unset the ra context, the
 	 * entity object can not be reused
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 */
 	public void remove() throws InvalidStateException;
@@ -198,7 +201,7 @@ public interface ResourceAdaptorEntity {
 	/**
 	 * Indicates a service was activated, the entity will forward this
 	 * notification to the ra object.
-	 * 
+	 *
 	 * @param serviceID
 	 */
 	public void serviceActive(ServiceID serviceID);
@@ -206,7 +209,7 @@ public interface ResourceAdaptorEntity {
 	/**
 	 * Indicates a service was deactivated, the entity will forward this
 	 * notification to the ra object.
-	 * 
+	 *
 	 * @param serviceID
 	 */
 	public void serviceInactive(ServiceID serviceID);
@@ -214,11 +217,11 @@ public interface ResourceAdaptorEntity {
 	/**
 	 * Indicates a service is stopping, the entity will forward this
 	 * notification to the ra object.
-	 * 
+	 *
 	 * @param serviceID
 	 */
 	public void serviceStopping(ServiceID serviceID);
-	
+
 	/**
 	 * Signals that the container is in RUNNING state
 	 */
@@ -226,10 +229,10 @@ public interface ResourceAdaptorEntity {
 
 	/**
 	 * Signals that the container is in STOPPING state
-	 * 
+	 *
 	 * @throws TransactionRequiredLocalException
 	 */
-	public void sleeStopping() throws InvalidStateException,
+	public void sleeStopping(boolean isGraceful) throws InvalidStateException,
 			TransactionRequiredLocalException;
 
 	/**
@@ -243,4 +246,6 @@ public interface ResourceAdaptorEntity {
 	 * @return
 	 */
 	public int getRaEntityActivitiesCount();
+
+	int getRaEntityLocalRaActivitiesCount();
 }

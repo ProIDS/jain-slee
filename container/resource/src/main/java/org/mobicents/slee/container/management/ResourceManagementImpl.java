@@ -33,6 +33,7 @@ import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDe
 import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDescriptor;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
+import org.mobicents.slee.container.resource.GracefullyStopableResourceAdaptor;
 import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
 import org.mobicents.slee.container.transaction.TransactionContext;
@@ -73,12 +74,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 
+ *
  * Manages deployed resource adaptor components.
- * 
+ *
  * @author Eduardo Martins
  * @author @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
- * 
+ *
  */
 public final class ResourceManagementImpl extends AbstractSleeContainerModule implements ResourceManagement {
 
@@ -93,7 +94,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	 * the set of resource adaptor entities aggregated per ra type, this is a runtime cache for optimal performance on ra type activity context factories
 	 */
 	private final ConcurrentHashMap<ResourceAdaptorTypeID, Set<ResourceAdaptorEntity>> entitiesPerType = new ConcurrentHashMap<ResourceAdaptorTypeID, Set<ResourceAdaptorEntity>>();
-	
+
 	/**
 	 * the resource adaptor entity name links
 	 */
@@ -103,24 +104,24 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	 * singleton
 	 */
 	private static final ResourceManagementImpl INSTANCE = new ResourceManagementImpl();
-	
+
 	private ActivityHandleReferenceFactory handleReferenceFactory;
-	
+
 	public static ResourceManagementImpl getInstance(){
 		return INSTANCE;
 	}
-	
+
 	private ResourceManagementImpl() {
 		super();
 		resourceAdaptorEntities = new ConcurrentHashMap<String, ResourceAdaptorEntityImpl>();
 		resourceAdaptorEntityLinks = new ConcurrentHashMap<String, String>();
 	}
-	
+
 	private Object readResolve() throws ObjectStreamException {
 		// fools serialization
 		return INSTANCE;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#clone()
 	 */
@@ -128,7 +129,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	protected Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
-	
+
 	// --- MBEAN methods
 
 	/**
@@ -136,11 +137,11 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	 *      String, ConfigProperties)
 	 */
 	public void createResourceAdaptorEntity(ResourceAdaptorID id,
-			String entityName, ConfigProperties properties)
-	throws NullPointerException, InvalidArgumentException,
-	UnrecognizedResourceAdaptorException,
-	ResourceAdaptorEntityAlreadyExistsException,
-	InvalidConfigurationException {
+																					String entityName, ConfigProperties properties)
+			throws NullPointerException, InvalidArgumentException,
+			UnrecognizedResourceAdaptorException,
+			ResourceAdaptorEntityAlreadyExistsException,
+			InvalidConfigurationException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Creating RA Entity. Id: " + id + ", name: "
@@ -176,7 +177,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		if (component == null) {
 			throw new UnrecognizedResourceAdaptorException(
 					"Failed to create RA Entity. RA ID: " + id
-					+ " not found.");
+							+ " not found.");
 		}
 		else {
 			final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -185,13 +186,13 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				if (this.resourceAdaptorEntities.containsKey(entityName)) {
 					throw new ResourceAdaptorEntityAlreadyExistsException(
 							"Failed to create RA Entity. Resource Adpator Entity Name: "
-							+ entityName + " already exists! RA ID: " + id);
+									+ entityName + " already exists! RA ID: " + id);
 				}
 
 				TraceManagement traceMBeanImpl = sleeContainer.getTraceManagement();
 				ResourceAdaptorEntityNotification notificationSource = new ResourceAdaptorEntityNotification(entityName);
 				traceMBeanImpl.registerNotificationSource(notificationSource);
-				
+
 				// create resource usage mbean
 				ResourceUsageMBean usageMBean = null;
 				if (component.getUsageParametersInterface() != null) {
@@ -204,9 +205,9 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 						throw new SLEEException("failed to create and register entity resource usage mbean",e);
 					}
 				}
-				
+
 				ResourceAdaptorEntityImpl raEntity =null;
-				try { 
+				try {
 					raEntity = new ResourceAdaptorEntityImpl(
 							entityName, component, properties, this,notificationSource, usageMBean);
 				}
@@ -230,7 +231,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
 					Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
 					if (set == null) {
-						throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID); 
+						throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID);
 					}
 					else {
 						set.add(raEntity);
@@ -264,7 +265,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 
 		final ResourceAdaptorEntity raEntity = this.resourceAdaptorEntities
-		.get(entityName);
+				.get(entityName);
 		if (raEntity == null) {
 			throw new UnrecognizedResourceAdaptorEntityException(
 					"Resource Adaptor Entity " + entityName + " not found.");
@@ -282,7 +283,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	}
 
 	/**
-	 * @see ResourceManagementMBean#deactivateResourceAdaptorEntity(String)
+	 * @see org.mobicents.slee.container.management.jmx.ResourceManagementMBeanImplMBean#deactivateResourceAdaptorEntity(String)
 	 */
 	public void deactivateResourceAdaptorEntity(String entityName)
 			throws NullPointerException,
@@ -297,7 +298,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 
 		final ResourceAdaptorEntity raEntity = this.resourceAdaptorEntities
-		.get(entityName);
+				.get(entityName);
 		if (raEntity == null) {
 			throw new UnrecognizedResourceAdaptorEntityException(
 					"Resource Adaptor Entity " + entityName + " not found.");
@@ -307,7 +308,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			boolean rollback = true;
 			try {
 				sleeContainer.getTransactionManager().begin();
-				raEntity.deactivate();
+				raEntity.deactivate(false);
 				rollback = false;
 			} catch (NotSupportedException e) {
 				throw new SLEEException(e.getMessage(),e);
@@ -334,7 +335,129 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			}
 			logger.info("Deactivated RA Entity " + entityName);
 		}
-		
+
+	}
+
+	/**
+	 * @see org.mobicents.slee.container.management.jmx.ResourceManagementMBeanImplMBean#gracefulShutdownResourceAdaptorEntity(String, Integer, Long)
+	 */
+	/**
+	 *
+	 * @param entityName RA entity name
+	 * @param ast Active Sessions Treshold
+	 * @param time Graceful shutdown countdown time
+	 */
+	@Override
+	public void gracefulShutdownResourceAdaptorEntity(String entityName, Integer ast, Long time)
+			throws NullPointerException,
+			UnrecognizedResourceAdaptorEntityException, InvalidStateException {
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Trying to gracefully shutdown RA Entity " + entityName);
+		}
+
+		if (entityName == null) {
+			throw new NullPointerException("null entity name");
+		}
+
+		final ResourceAdaptorEntity raEntity = this.resourceAdaptorEntities.get(entityName);
+
+		try {
+			raEntity.getResourceAdaptorObject().getObject().getClass().getMethod(GracefullyStopableResourceAdaptor.RA_GRACEFUL_STOP_METHOD_NAME);
+		} catch (NoSuchMethodException ex) {
+			logger.warn("RA object of entity: " + raEntity.getName() + " does not support graceful stopping mode. Cause: " + ex.getClass() + " " + ex.getMessage());
+			return;
+		}
+
+		if (raEntity == null) {
+			throw new UnrecognizedResourceAdaptorEntityException("Resource Adaptor Entity " + entityName + " not found.");
+		} else {
+			final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(raEntity.getComponent().getClassLoader());
+			boolean rollback = true;
+			try {
+				sleeContainer.getTransactionManager().begin();
+
+				raEntity.deactivate(true);
+
+				ConfigProperties config = getConfigurationProperties(entityName);
+				if(ast == -1) {
+					ConfigProperties.Property defaultActiveSessionsThreshold = config.getProperty("defaultActiveSessionsThreshold");
+					ast = (Integer) defaultActiveSessionsThreshold.getValue();
+					logger.info("#### Getting default AST = " + ast);
+				}
+				if(time == -1) {
+					ConfigProperties.Property defaultGracefulShutdownWaitTime = config.getProperty("defaultGracefulShutdownWaitTime");
+					time = (Long) defaultGracefulShutdownWaitTime.getValue();
+					logger.info("#### Getting default graceful shutdown time = " + time);
+				}
+
+				int currentRaActivitiesCount;
+				long gracefulStopThreshold = System.currentTimeMillis() + time * 1000;
+				boolean loop;
+
+				do {
+					loop = false;
+					currentRaActivitiesCount = 0;
+
+					ResourceAdaptorObjectState raObjState = raEntity.getResourceAdaptorObject().getState();
+					logger.info("#### raObjState is " + raObjState);
+					if (raObjState == ResourceAdaptorObjectState.STOPPING) {
+						loop = true;
+						currentRaActivitiesCount = raEntity.getRaEntityLocalRaActivitiesCount();
+						logger.info("Waiting for ra entity " + raEntity.getName() + " to stop gracefully. Activities RA left: " + currentRaActivitiesCount);
+					}
+
+					if (currentRaActivitiesCount < ast) {
+						logger.info("#### currentRaActivitiesCount = " + currentRaActivitiesCount);
+						logger.warn("Current GS compliant RA entities activities count is lower than AST (" + ast + "). Breaking graceful RAs stop!");
+						raEntity.forceDeactivation();
+						break;
+					}
+					if (System.currentTimeMillis() > gracefulStopThreshold) {
+						logger.info("#### currentRaActivitiesCount = " + currentRaActivitiesCount);
+						logger.warn("Max graceful stop time has passed (" + time + "s). Breaking graceful RAs stop!");
+						raEntity.forceDeactivation();
+						break;
+					}
+
+					if (loop) {
+						try {
+							Thread.sleep(1000);
+						}
+						catch (InterruptedException e) {
+							logger.error(e.getMessage(), e);
+						}
+					}
+
+				} while (loop);
+
+				rollback = false;
+			} catch (NotSupportedException e) {
+				throw new SLEEException(e.getMessage(),e);
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			} catch (TransactionRequiredLocalException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+			finally {
+				try {
+					if (rollback) {
+						sleeContainer.getTransactionManager().rollback();
+					}
+					else {
+						sleeContainer.getTransactionManager().commit();
+					}
+				}
+				catch (Throwable e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+				finally {
+					Thread.currentThread().setContextClassLoader(classLoader);
+				}
+			}
+			logger.info("Deactivated RA Entity " + entityName);
+		}
 	}
 
 	/**
@@ -354,7 +477,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 
 		final ResourceAdaptorEntityImpl raEntity = this.resourceAdaptorEntities
-		.get(entityName);
+				.get(entityName);
 		if (raEntity == null) {
 			throw new UnrecognizedResourceAdaptorEntityException(
 					"Resource Adaptor Entity " + entityName + " not found.");
@@ -374,7 +497,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				for (ResourceAdaptorTypeID resourceAdaptorTypeID : raEntity.getComponent().getSpecsDescriptor().getResourceAdaptorTypes()) {
 					Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
 					if (set == null) {
-						throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID); 
+						throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID);
 					}
 					else {
 						set.remove(raEntity);
@@ -383,7 +506,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 
 				ResourceUsageMBean resourceUsageMBeanImpl = raEntity.getResourceUsageMBean();
 				if (resourceUsageMBeanImpl != null) {
-					resourceUsageMBeanImpl.remove();													
+					resourceUsageMBeanImpl.remove();
 				}
 
 				logger.info("Removed RA Entity " + entityName);
@@ -396,12 +519,12 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	}
 
 	/**
-	 * 
+	 *
 	 * @see ResourceManagementMBean#updateConfigurationProperties(String,
 	 *      ConfigProperties)
 	 */
 	public void updateConfigurationProperties(String entityName,
-			ConfigProperties properties) throws NullPointerException,
+																						ConfigProperties properties) throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
 			InvalidConfigurationException {
 
@@ -487,7 +610,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	}
 
 	/**
-	 * 
+	 *
 	 * @see ResourceManagementMBean#getResourceAdaptorEntities(ResourceAdaptorEntityState)
 	 */
 	public String[] getResourceAdaptorEntities(ResourceAdaptorEntityState state)
@@ -520,7 +643,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	 * @see ResourceManagementMBean#getLinkNames()
 	 */
 	public String[] getLinkNames() {
-		
+
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting RA link names");
 		}
@@ -540,7 +663,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	public Set<String> getLinkNamesSet() {
 		return Collections.unmodifiableSet(resourceAdaptorEntityLinks.keySet());
 	}
-	
+
 	/**
 	 * @see ResourceManagementMBean#getLinkNames(String)
 	 */
@@ -596,10 +719,10 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 		final Set<SbbID> boundSbbsSet = new HashSet<SbbID>();
 		final ComponentRepository componentRepository = sleeContainer
-		.getComponentRepository();
+				.getComponentRepository();
 		for (SbbID sbbID : componentRepository.getSbbIDs()) {
 			SbbComponent sbbComponent = componentRepository
-			.getComponentByID(sbbID);
+					.getComponentByID(sbbID);
 			for (ResourceAdaptorTypeBindingDescriptor raTypeBinding : sbbComponent
 					.getDescriptor().getResourceAdaptorTypeBindings()) {
 				for (ResourceAdaptorEntityBindingDescriptor raEntityBinding : raTypeBinding
@@ -612,7 +735,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			}
 		}
 		SbbID[] result = boundSbbsSet
-		.toArray(new SbbID[boundSbbsSet.size()]);
+				.toArray(new SbbID[boundSbbsSet.size()]);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Got sbbs bound to link name " + linkName + " : "
 					+ boundSbbsSet);
@@ -653,7 +776,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Getting configuration properties for RA entity with name "
-							+ entityName);
+					+ entityName);
 		}
 
 		if (entityName == null)
@@ -718,7 +841,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		if (resourceAdaptorID == null) {
 			throw new NullPointerException("null resource adaptor");
 		}
-		
+
 		ResourceAdaptorComponent component = getResourceAdaptorComponent(resourceAdaptorID);
 		if (component == null) {
 			throw new UnrecognizedResourceAdaptorException(
@@ -731,7 +854,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				}
 			}
 			String[] entityNames = entityNameSet
-			.toArray(new String[entityNameSet.size()]);
+					.toArray(new String[entityNameSet.size()]);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Got RA entity names : "
 						+ Arrays.asList(entityNames));
@@ -759,7 +882,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		String[] resultEntityNames = new String[linkNames.length];
 		for (int i = 0; i < linkNames.length; i++) {
 			String entityName = resourceAdaptorEntityLinks
-			.get(linkNames[i]);
+					.get(linkNames[i]);
 			resultEntityNames[i] = entityName;
 		}
 
@@ -827,13 +950,13 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException,
 			InvalidArgumentException {
-		
+
 		if (entityName == null)
 			throw new NullPointerException("null entity name");
 
 		final ResourceAdaptorEntityImpl resourceAdaptorEntity = this.resourceAdaptorEntities
 				.get(entityName);
-		
+
 		if (resourceAdaptorEntity == null) {
 			throw new UnrecognizedResourceAdaptorEntityException(entityName);
 		} else {
@@ -846,7 +969,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				mbean.open();
 				// return its object name
 				return mbean.getObjectName();
-			}			
+			}
 		}
 	}
 
@@ -855,7 +978,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	/**
 	 * Retrieves the {@link ResourceAdaptorEntity} with the specified entity
 	 * name.
-	 * 
+	 *
 	 */
 	public ResourceAdaptorEntityImpl getResourceAdaptorEntity(String entityName) {
 		return this.resourceAdaptorEntities
@@ -869,7 +992,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	public Set<ResourceAdaptorEntity> getResourceAdaptorEntitiesPerType(ResourceAdaptorTypeID resourceAdaptorTypeID) {
 		return entitiesPerType.get(resourceAdaptorTypeID);
 	}
-	
+
 	private ResourceAdaptorComponent getResourceAdaptorComponent(
 			ResourceAdaptorID id) {
 		return sleeContainer.getComponentRepository().getComponentByID(id);
@@ -893,18 +1016,18 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 
 	@Override
 	public String toString() {
-		return "Resource Management: " 
-			+ "\n+-- Resource Adaptor Entities: " + resourceAdaptorEntities.keySet()
-			+ "\n+-- Resource Adaptor Entity Links: " + resourceAdaptorEntityLinks.keySet()
-			+ "\n+-- Resource Adaptor Entities per RA Type size: "	+ entitiesPerType.size()
-			+ "\n+-- Activity Handle Reference Factory: "	+ handleReferenceFactory;
+		return "Resource Management: "
+				+ "\n+-- Resource Adaptor Entities: " + resourceAdaptorEntities.keySet()
+				+ "\n+-- Resource Adaptor Entity Links: " + resourceAdaptorEntityLinks.keySet()
+				+ "\n+-- Resource Adaptor Entities per RA Type size: "	+ entitiesPerType.size()
+				+ "\n+-- Activity Handle Reference Factory: "	+ handleReferenceFactory;
 
 	}
 
 	/**
 	 * Installs the specified {@link ResourceAdaptorTypeComponent} in the container
 	 * @param component
-	 * @throws DeploymentException 
+	 * @throws DeploymentException
 	 */
 	public void installResourceAdaptorType(
 			ResourceAdaptorTypeComponent component) throws DeploymentException {
@@ -938,16 +1061,16 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
 				entitiesPerType.remove(resourceAdaptorTypeID);
-				
+
 			}
 		};
-		sleeContainer.getTransactionManager().getTransactionContext().getAfterRollbackActions().add(action);				
+		sleeContainer.getTransactionManager().getTransactionContext().getAfterRollbackActions().add(action);
 	}
 
 	/**
 	 * Installs the specified {@link ResourceAdaptorComponent} in the container
 	 * @param component
-	 * @throws DeploymentException 
+	 * @throws DeploymentException
 	 */
 	public void installResourceAdaptor(final ResourceAdaptorComponent component) throws DeploymentException {
 		if (logger.isDebugEnabled()) {
@@ -992,8 +1115,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 		else {
 			action1.execute();
-		}		
-		
+		}
+
 		// if we are in cluster mode we need to remove the RA class loader domain from the replication class loader
 		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
 			final ReplicationClassLoader replicationClassLoader = sleeContainer.getReplicationClassLoader();
@@ -1009,13 +1132,13 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				action2.execute();
 			}
 		}
-		
+
 	}
 
 	/**
 	 * Uninstalls the specified {@link ResourceAdaptorComponent} from the container
 	 * @param component
-	 * @throws DependencyException 
+	 * @throws DependencyException
 	 */
 	public void uninstallResourceAdaptor(ResourceAdaptorComponent component) throws DependencyException {
 		if (logger.isDebugEnabled()) {
@@ -1028,21 +1151,21 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			}
 		}
 	}
-	
+
 	@Override
 	public void sleeInitialization() {
 		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
 			handleReferenceFactory = new ActivityHandleReferenceFactory(this);
-		}		
+		}
 	}
-	
+
 	@Override
 	public void sleeStarting() {
 		if (handleReferenceFactory != null) {
 			handleReferenceFactory.init();
-		}			
+		}
 	}
-	
+
 	@Override
 	public void sleeRunning() {
 		final Thread currentThread = Thread.currentThread();
@@ -1059,7 +1182,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 		currentThread.setContextClassLoader(currentThreadClassLoader);
 	}
-	
+
 	@Override
 	public void sleeStopping() {
 		boolean stoppingGracefully = sleeContainer.isGracefullyStopping();
@@ -1081,13 +1204,13 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
 			try {
 				currentThread.setContextClassLoader(raEntity.getComponent().getClassLoader());
-				raEntity.sleeStopping();
+				raEntity.sleeStopping(false);
 				if(raEntity.getResourceAdaptorObject().getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 					currentActivitiesCount += raEntity.getRaEntityActivitiesCount();
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(),e);
-			}			
+			}
 		}
 		currentThread.setContextClassLoader(currentThreadClassLoader);
 
@@ -1149,7 +1272,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public ActivityHandleReferenceFactory getHandleReferenceFactory() {

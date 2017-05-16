@@ -32,11 +32,11 @@ import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 
 /**
- * 
+ *
  * Proxy object for activity context factory data management through JBoss Cache
- * 
+ *
  * @author martins
- * 
+ *
  */
 
 public class ActivityContextFactoryCacheData extends CacheData {
@@ -47,8 +47,8 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	final static Fqn NODE_FQN = Fqn.fromElements(ActivityContextCacheData.parentNodeFqn);
 
 	/**
-	 * 
-	 * @param activityContextId
+	 *
+	 * @param cluster
 	 */
 	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
 		super(NODE_FQN, cluster.getMobicentsCache());
@@ -57,7 +57,7 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	/**
 	 * Retrieves a set containing all activity context handles in the factory's
 	 * cache data
-	 * 
+	 *
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
