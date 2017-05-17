@@ -251,10 +251,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#getActivityContextCount()
 	 */
 	public int getActivityContextCount() {
-		int all = getAllActivityContextsHandles().size();
-		int local = localActivityContexts.size();
-//		return getAllActivityContextsHandles().size();
-		return localActivityContexts.size();
+		return getAllActivityContextsHandles().size();
 	}
 
 	public int getLocalActivityContextsCount() {

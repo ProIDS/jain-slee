@@ -434,7 +434,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	}
 
 	public void forceDeactivation() throws InvalidStateException, TransactionRequiredLocalException {
-		logger.info("#### force deactivation");
+		logger.info("Force deactivation of all local activities for RA entity: " + name);
 		if (!this.state.isStopping()) {
 			throw new InvalidStateException("entity " + name + " is in state: " + this.state);
 		}
@@ -448,7 +448,6 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 			removeLocalActivity();
 
 //			if(!hasActivities()) {
-//				logger.info("#### Brak aktywności !!!");
 			inactivate();
 //			}
 		}
@@ -471,7 +470,6 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	}
 
 	private void removeLocalActivity() {
-		logger.info("#### Forcing the end of local activities for ra entity " + getName());
 		for (Map.Entry<ActivityContextHandle, LocalActivityContextImpl> entry: sleeContainer.getActivityContextFactory().getLocalActivityContexts().entrySet()) {
 			ActivityContextHandle handle = entry.getKey();
 			if (handle.getActivityType() == ActivityType.RA) {
@@ -559,9 +557,9 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		int activitiesCount = 0;
 		try {
 			if(!this.state.isInactive()) {
-				//TODO skasowac log
-				logger.info("#### LocalActivityContexts size = " + sleeContainer.getActivityContextFactory().getLocalActivityContexts().size());
-
+				if(logger.isDebugEnabled()){
+					logger.debug("Number of all local activities = " + sleeContainer.getActivityContextFactory().getLocalActivityContexts().size());
+				}
 				for (Map.Entry<ActivityContextHandle, LocalActivityContextImpl> entry: sleeContainer.getActivityContextFactory().getLocalActivityContexts().entrySet()) {
 					ActivityContextHandle handle = entry.getKey();
 					if (handle.getActivityType() == ActivityType.RA) {
