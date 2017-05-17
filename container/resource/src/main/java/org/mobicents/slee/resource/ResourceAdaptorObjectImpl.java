@@ -321,7 +321,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			logger.trace("raInactive()");
 		}
 
-		if (state == ResourceAdaptorObjectState.STOPPING || state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+		if (state == ResourceAdaptorObjectState.STOPPING) {
 			state = ResourceAdaptorObjectState.INACTIVE;
 			object.raInactive();
 		} else {
@@ -601,8 +601,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 		}
 
 		if (this.state == ResourceAdaptorObjectState.ACTIVE
-				|| this.state == ResourceAdaptorObjectState.STOPPING
-				|| this.state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+				|| this.state == ResourceAdaptorObjectState.STOPPING) {
 			object.eventProcessingSuccessful(handle, eventType, event, address,
 					service, flags);
 		}
@@ -630,8 +629,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 		}
 
 		if (this.state == ResourceAdaptorObjectState.ACTIVE
-				|| this.state == ResourceAdaptorObjectState.STOPPING
-				|| this.state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+				|| this.state == ResourceAdaptorObjectState.STOPPING) {
 			object.eventUnreferenced(handle, eventType, event, address,
 					service, flags);
 		}

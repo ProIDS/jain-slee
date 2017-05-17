@@ -57,9 +57,9 @@ import javax.slee.resource.UnrecognizedActivityHandleException;
 import javax.transaction.SystemException;
 
 /**
- * 
+ *
  * Implementation of SLEE 1.1 {@link SleeEndpoint}
- * 
+ *
  * @author Eduardo Martins
  */
 public class SleeEndpointImpl implements SleeEndpoint {
@@ -101,7 +101,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.mobicents.slee.container.resource.SleeEndpoint#activityExists(javax
 	 * .slee.resource.ActivityHandle)
@@ -118,13 +118,13 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 */
 	public boolean replicatedActivityExists(ActivityHandle handle)
 		throws IllegalStateException, NullPointerException, SLEEException {
-		
+
 		return activityExists(handle,false);
 	}
 
 	private boolean activityExists(ActivityHandle handle,boolean checkHandleRef)
 		throws IllegalStateException, NullPointerException, SLEEException {
-		
+
 		if (handle == null)
 			throw new NullPointerException("handle is null");
 
@@ -140,12 +140,12 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		return acFactory.activityContextExists(ach);
 
 	}
-		
+
 	// --- ACTIVITY START
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seejavax.slee.resource.SleeEndpoint#startActivity(javax.slee.resource.
 	 * ActivityHandle, java.lang.Object)
 	 */
@@ -158,7 +158,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seejavax.slee.resource.SleeEndpoint#startActivity(javax.slee.resource.
 	 * ActivityHandle, java.lang.Object, int)
 	 */
@@ -178,7 +178,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#startActivitySuspended(javax.slee.resource
 	 * .ActivityHandle, java.lang.Object)
@@ -192,7 +192,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#startActivitySuspended(javax.slee.resource
 	 * .ActivityHandle, java.lang.Object, int)
@@ -210,14 +210,14 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		}
 
 		// need to check tx before doing out of tx scope activity start
-		txManager.mandateTransaction();	
+		txManager.mandateTransaction();
 		checkStartActivityParameters(handle, activity);
-		startActivityNotTransactedExecutor.execute(handle, activityFlags,true);		
+		startActivityNotTransactedExecutor.execute(handle, activityFlags,true);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#startActivityTransacted(javax.slee.resource
 	 * .ActivityHandle, java.lang.Object)
@@ -231,7 +231,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#startActivityTransacted(javax.slee.resource
 	 * .ActivityHandle, java.lang.Object, int)
@@ -256,7 +256,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/**
 	 * Checks the parameters of startActivity* methods
-	 * 
+	 *
 	 * @param handle
 	 * @param activity
 	 * @throws NullPointerException
@@ -273,7 +273,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			throw new NullPointerException("null activity");
 		}
 		// check ra state
-		if (raEntity.getResourceAdaptorObject().getState() != ResourceAdaptorObjectState.ACTIVE && raEntity.getResourceAdaptorObject().getState() != ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+		if (raEntity.getResourceAdaptorObject().getState() != ResourceAdaptorObjectState.ACTIVE) {
 			throw new IllegalStateException("ra is in state "
 					+ raEntity.getResourceAdaptorObject().getState());
 		}
@@ -299,7 +299,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 				// create activity context with ref instead
 				ac = acFactory.createActivityContext(
 						new ResourceAdaptorActivityContextHandleImpl(raEntity,
-								reference), activityFlags);				
+								reference), activityFlags);
 			} catch (ActivityAlreadyExistsException e) {
 				throw e;
 			} catch (RuntimeException e) {
@@ -311,7 +311,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			// create activity context
 			ac = acFactory.createActivityContext(
 					new ResourceAdaptorActivityContextHandleImpl(raEntity,
-							handle), activityFlags);			
+							handle), activityFlags);
 		}
 		// suspend activity if needed
 		if (barrierTx != null && ac != null) {
@@ -319,7 +319,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			aeqm.createBarrier(barrierTx);
 			TransactionalAction action = new TransactionalAction() {
 				public void execute() {
-					aeqm.removeBarrier(barrierTx);					
+					aeqm.removeBarrier(barrierTx);
 				}
 			};
 			final TransactionContext tc = barrierTx.getTransactionContext();
@@ -333,7 +333,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seejavax.slee.resource.SleeEndpoint#endActivity(javax.slee.resource.
 	 * ActivityHandle)
 	 */
@@ -344,7 +344,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.mobicents.slee.container.resource.SleeEndpoint#endReplicatedActivity
 	 * (javax.slee.resource.ActivityHandle)
@@ -375,7 +375,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#endActivityTransacted(javax.slee.resource
 	 * .ActivityHandle)
@@ -389,7 +389,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.mobicents.slee.container.resource.SleeEndpoint#
 	 * endReplicatedActivityTransacted(javax.slee.resource.ActivityHandle)
 	 */
@@ -443,7 +443,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 				aeqm.createBarrier(barrierTx);
 				TransactionalAction action = new TransactionalAction() {
 					public void execute() {
-						aeqm.removeBarrier(barrierTx);					
+						aeqm.removeBarrier(barrierTx);
 					}
 				};
 				final TransactionContext tc = barrierTx.getTransactionContext();
@@ -461,7 +461,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#fireEvent(javax.slee.resource.ActivityHandle
 	 * , javax.slee.resource.FireableEventType, java.lang.Object,
@@ -478,7 +478,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.mobicents.slee.container.resource.SleeEndpoint#
 	 * fireEventOnReplicatedActivity(javax.slee.resource.ActivityHandle,
 	 * javax.slee.resource.FireableEventType, java.lang.Object,
@@ -495,7 +495,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#fireEvent(javax.slee.resource.ActivityHandle
 	 * , javax.slee.resource.FireableEventType, java.lang.Object,
@@ -514,7 +514,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.mobicents.slee.container.resource.SleeEndpoint#
 	 * fireEventOnReplicatedActivity(javax.slee.resource.ActivityHandle,
 	 * javax.slee.resource.FireableEventType, java.lang.Object,
@@ -559,7 +559,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#fireEventTransacted(javax.slee.resource
 	 * .ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object,
@@ -577,7 +577,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.mobicents.slee.container.resource.SleeEndpoint#
 	 * fireEventTransactedOnReplicatedActivity
 	 * (javax.slee.resource.ActivityHandle,
@@ -596,7 +596,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#fireEventTransacted(javax.slee.resource
 	 * .ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object,
@@ -615,7 +615,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.mobicents.slee.container.resource.SleeEndpoint#
 	 * fireEventTransactedOnReplicatedActivity
 	 * (javax.slee.resource.ActivityHandle,
@@ -664,7 +664,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/**
 	 * Checks that fire event methods can be invoked
-	 * 
+	 *
 	 * @param handle
 	 * @param eventType
 	 * @param event
@@ -716,7 +716,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/**
 	 * Event firing logic independent of transaction management.
-	 * 
+	 *
 	 * @param realHandle
 	 * @param refHandle
 	 * @param eventType
@@ -748,7 +748,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 				aeqm.createBarrier(barrierTx);
 				TransactionalAction action = new TransactionalAction() {
 					public void execute() {
-						aeqm.removeBarrier(barrierTx);					
+						aeqm.removeBarrier(barrierTx);
 					}
 				};
 				final TransactionContext tc = barrierTx.getTransactionContext();
@@ -778,7 +778,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * javax.slee.resource.SleeEndpoint#suspendActivity(javax.slee.resource.
 	 * ActivityHandle)
@@ -792,7 +792,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.mobicents.slee.container.resource.SleeEndpoint#suspendReplicatedActivity
 	 * (javax.slee.resource.ActivityHandle)

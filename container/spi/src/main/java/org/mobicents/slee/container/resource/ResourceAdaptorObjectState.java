@@ -29,6 +29,6 @@ package org.mobicents.slee.container.resource;
  */
 public enum ResourceAdaptorObjectState {
 
-	UNCONFIGURED, INACTIVE, ACTIVE, STOPPING, STOPPING_GRACEFULLY
-	
+	UNCONFIGURED, INACTIVE, ACTIVE, STOPPING
+
 }

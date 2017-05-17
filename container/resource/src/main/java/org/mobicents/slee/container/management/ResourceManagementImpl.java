@@ -1185,18 +1185,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 
 	@Override
 	public void sleeStopping() {
-		boolean stoppingGracefully = sleeContainer.isGracefullyStopping();
-		int currentActivitiesCount = 0;
-		int activitiesCountThreshold = sleeContainer.getGracefulStopActivitiesCountThreshold();
-		long gracefulStopThreshold = System.currentTimeMillis() + (sleeContainer.getGracefulStopWaitTime() * 1000);
 
-		String stopMsg = "Stopping";
-		if(stoppingGracefully) {
-			stopMsg += " gracefully all compliant resource adaptors ...";
-		} else {
-			stopMsg += " all capable resource adaptors ...";
-		}
-		logger.info(stopMsg);
+		logger.info("Stopping all active resource adaptors ...");
 
 		// inform all ra entities that we are stopping the container
 		final Thread currentThread = Thread.currentThread();
@@ -1205,38 +1195,24 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			try {
 				currentThread.setContextClassLoader(raEntity.getComponent().getClassLoader());
 				raEntity.sleeStopping(false);
-				if(raEntity.getResourceAdaptorObject().getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
-					currentActivitiesCount += raEntity.getRaEntityActivitiesCount();
-				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(),e);
 			}
 		}
 		currentThread.setContextClassLoader(currentThreadClassLoader);
 
-		if(stoppingGracefully && logger.isInfoEnabled()) {
-			logger.info("Graceful stopping mode is active - waiting till all compliant ra entities objects are stopped");
-			logger.info("Initial GS compliant RA activities count = " + currentActivitiesCount + " of " + sleeContainer.getActivityContextFactory().getActivityContextCount() + " activities total");
-		}
-
 		// wait till all ra entity objects are stopped
 		boolean loop;
 		boolean sleepInLastLoop = false;
 		do {
 			loop = false;
-			currentActivitiesCount = 0;
 			for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
 				try {
-					ResourceAdaptorObjectState raObjState = raEntity.getResourceAdaptorObject().getState();
-					if (raObjState == ResourceAdaptorObjectState.STOPPING || raObjState == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+					if (raEntity.getResourceAdaptorObject()
+							.getState() == ResourceAdaptorObjectState.STOPPING) {
+						logger.info("Waiting for ra entity "+raEntity.getName()+" to stop...");
 						loop = true;
 						sleepInLastLoop = true;
-						int entityActivitiesCount = 0;
-						if(raObjState == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
-							entityActivitiesCount = raEntity.getRaEntityActivitiesCount();
-							currentActivitiesCount += entityActivitiesCount;
-						}
-						logger.info("Waiting for ra entity "+raEntity.getName()+" to stop "+(stoppingGracefully?"gracefully... Activities left: " + entityActivitiesCount:"..."));
 					}
 				} catch (Exception e) {
 					if (logger.isDebugEnabled()) {
@@ -1244,19 +1220,6 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 					}
 				}
 			}
-
-			if(stoppingGracefully) {
-				logger.info("Stopping... Current total GS compliant RA entities activities count = " + currentActivitiesCount);
-				if (currentActivitiesCount < activitiesCountThreshold) {
-					logger.warn("Current GS compliant RA entities activities count is lower than AST (" + activitiesCountThreshold + "). Breaking graceful RAs stop!");
-					break;
-				}
-				if (System.currentTimeMillis() > gracefulStopThreshold) {
-					logger.warn("Max graceful stop time has passed (" + sleeContainer.getGracefulStopWaitTime() + "s). Breaking graceful RAs stop!");
-					break;
-				}
-			}
-
 			if (loop || sleepInLastLoop) {
 				try {
 					// wait a sec

@@ -323,9 +323,6 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 			catch (Throwable t) {
 				logger.error("Got exception from RA object",t);
 			}
-			if(!sleeContainer.isGracefullyStopping()) {
-				scheduleAllActivitiesEnd();
-			}
 		}
 	}
 
@@ -417,7 +414,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 					try {
 						cancel();
 						if (state == ResourceAdaptorEntityState.STOPPING) {
-							if (object.getState() == ResourceAdaptorObjectState.STOPPING || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+							if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
 								if(!sleeContainer.getCluster().isSingleMember()) {
 									scheduleAllActivitiesEnd();
 								}
@@ -798,7 +795,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		if (ah != null && ActivityFlags.hasRequestEndedCallback(activityFlags)) {
 			object.activityEnded(ah);
 		}
-		if (object.getState() == ResourceAdaptorObjectState.STOPPING || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
 			synchronized (this) {
 				// the ra object is stopping, check if the timer task is still
 				// needed

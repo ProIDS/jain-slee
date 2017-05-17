@@ -26,7 +26,7 @@ import javax.slee.management.SleeState;
 
 /**
  * A request to change SLEE state.
- * 
+ *
  * @author martins
  * @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
  *
@@ -38,28 +38,22 @@ public interface SleeStateChangeRequest {
 	 * @return
 	 */
 	public SleeState getNewState();
-	
+
 	/**
 	 * Indicates if the container operations, which result from state change, should be completed before returning from state change request.
 	 * @return
 	 */
 	public boolean isBlockingRequest();
-	
+
 	/**
 	 * Indicates that the state has now changed.
 	 * @param oldState
 	 */
 	public void stateChanged(SleeState oldState);
-	
+
 	/**
 	 * Indicates that the whole process of state change completed.
 	 */
 	public void requestCompleted();
 
-	/**
-	 * Indicates graceful mode of request
-	 * @return
-     */
-	public boolean isGraceful();
-	
 }

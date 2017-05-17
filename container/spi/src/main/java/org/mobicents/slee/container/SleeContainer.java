@@ -74,7 +74,7 @@ import java.util.logging.Handler;
 /**
  * Implements the SleeContainer. The SleeContainer is the anchor for the SLEE.
  * It is the central location from where all container modules are accessible.
- * 
+ *
  * @author F.Moggia
  * @author M. Ranganathan
  * @author Ivelin Ivanov
@@ -115,28 +115,26 @@ public class SleeContainer {
 	}
 
 	private static String deployPath;
-	
+
 	private static SleeContainer sleeContainer;
 
 	/**
-	 * 
+	 *
 	 * @return the full file system path where restcomm.sar is located
 	 */
 	public static String getDeployPath() {
 		return deployPath;
 	}
 
-	
+
 	private LinkedList<SleeContainerModule> modules = new LinkedList<SleeContainerModule>();
-	
+
 	private final SleeTransactionManager sleeTransactionManager;
 	private final MobicentsCluster cluster;
 	// mbean server where the container's mbeans are registred
 	private final MBeanServer mbeanServer;
 	/** The lifecycle state of the SLEE */
 	private SleeState sleeState;
-	/** Indicates if SLEE is gracefully shutdown */
-	private boolean isGracefullyStopping = false;
 	/**
 	 * Graceful stop min activities threshold value.
 	 * When the number of all GS capable RA entities activities drops below this value then container shall be stopped in standard mode.
@@ -194,17 +192,17 @@ public class SleeContainer {
 	private final EventContextFactory eventContextFactory;
 
 	private final CongestionControl congestionControl;
-	
+
 	private final SleeConnectionService sleeConnectionService;
- 	
-	private final MobicentsSleeConnectionFactory sleeConnectionFactory; 
+
+	private final MobicentsSleeConnectionFactory sleeConnectionFactory;
 
 	private final SleeContainerDeployer deployer;
-	
+
 	/**
 	 * Creates a new instance of SleeContainer -- This is called from the
 	 * SleeManagementMBean to get the whole thing running.
-	 * 
+	 *
 	 */
 	public SleeContainer(
 			MBeanServer mBeanServer,
@@ -227,7 +225,7 @@ public class SleeContainer {
 			UsageParametersManagement usageParametersManagement,
 			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
 			SleeConnectionService sleeConnectionService, MobicentsSleeConnectionFactory sleeConnectionFactory, SleeContainerDeployer sleeContainerDeployer) throws Exception {
-		
+
 		this.mbeanServer = mBeanServer;
 
 		this.sleeTransactionManager = sleeTransactionManager;
@@ -253,7 +251,7 @@ public class SleeContainer {
 
 		this.usageParametersManagement = usageParametersManagement;
 		addModule(usageParametersManagement);
-				
+
 		this.activityContextFactory = activityContextFactory;
 		addModule(activityContextFactory);
 
@@ -286,10 +284,10 @@ public class SleeContainer {
 
 		this.congestionControl = congestionControl;
 		addModule(congestionControl);
-		
+
 		this.sleeConnectionService = sleeConnectionService;
 		addModule(sleeConnectionService);
-		
+
 		this.sleeConnectionFactory = sleeConnectionFactory;
 		addModule(sleeConnectionFactory);
 
@@ -305,12 +303,10 @@ public class SleeContainer {
 		addModule(sleeProfileTableManager);
 
 		this.serviceManagement = serviceManagement;
-		addModule(serviceManagement);	
-		
-		this.deployer = sleeContainerDeployer;
-		addModule(sleeContainerDeployer);	
+		addModule(serviceManagement);
 
-		this.isGracefullyStopping = false;
+		this.deployer = sleeContainerDeployer;
+		addModule(sleeContainerDeployer);
 	}
 
 	private void addModule(SleeContainerModule module) {
@@ -322,7 +318,7 @@ public class SleeContainer {
 
 	/**
 	 * dumps the container state as a string, useful for debug/profiling
-	 * 
+	 *
 	 * @return
 	 */
 	public String dumpState() {
@@ -330,7 +326,7 @@ public class SleeContainer {
 				+ timerFacility + "\n" + traceMBeanImpl + "\n"
 				+ sleeProfileTableManager + "\n" + activityContextFactory
 				+ "\n" + activityContextNamingFacility + "\n"
-				+ nullActivityFactory + "\n" 
+				+ nullActivityFactory + "\n"
 				+ getEventRouter() + "\n"
 				+ getEventContextFactory() + "\n"
 				+ getTransactionManager() + "\n"
@@ -346,7 +342,7 @@ public class SleeContainer {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public AlarmManagement getAlarmManagement() {
@@ -355,7 +351,7 @@ public class SleeContainer {
 
 	/**
 	 * The cache which manages the container's HA and FT data
-	 * 
+	 *
 	 * @return
 	 */
 	public MobicentsCluster getCluster() {
@@ -363,13 +359,13 @@ public class SleeContainer {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public SleeContainerDeployer getDeployer() {
 		return deployer;
 	}
-	
+
 	/**
 	 * @return the componentManagement
 	 */
@@ -379,7 +375,7 @@ public class SleeContainer {
 
 	/**
 	 * retrieves the container's component repository implementation
-	 * 
+	 *
 	 * @return
 	 */
 	public ComponentRepository getComponentRepository() {
@@ -387,16 +383,16 @@ public class SleeContainer {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public CongestionControl getCongestionControl() {
 		return congestionControl;
 	}
-	
+
 	/**
 	 * Retrieves the deployable unit manager
-	 * 
+	 *
 	 * @return
 	 */
 	public DeployableUnitManagement getDeployableUnitManagement() {
@@ -437,7 +433,7 @@ public class SleeContainer {
 
 	/**
 	 * Retrieves the container's non clustered scheduler.
-	 * 
+	 *
 	 * @return the nonClusteredScheduler
 	 */
 	public ScheduledExecutorService getNonClusteredScheduler() {
@@ -449,21 +445,21 @@ public class SleeContainer {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public MobicentsSleeConnectionFactory getSleeConnectionFactory() {
 		return sleeConnectionFactory;
 	}
-		
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public SleeConnectionService getSleeConnectionService() {
 		return this.sleeConnectionService;
 	}
-	
+
 	// GETTERS -- slee facilities
 
 	public NullActivityFactory getNullActivityFactory() {
@@ -472,7 +468,7 @@ public class SleeContainer {
 
 	/**
 	 * Retrieves the class loader used in data replication.
-	 * 
+	 *
 	 * @return
 	 */
 	public ReplicationClassLoader getReplicationClassLoader() {
@@ -481,7 +477,7 @@ public class SleeContainer {
 
 	/**
 	 * manages (un)install of resource adaptors
-	 * 
+	 *
 	 * @return
 	 */
 	public ResourceManagement getResourceManagement() {
@@ -499,7 +495,7 @@ public class SleeContainer {
 
 	/**
 	 * manages (un)install of sbbs
-	 * 
+	 *
 	 * @return
 	 */
 	public SbbManagement getSbbManagement() {
@@ -508,7 +504,7 @@ public class SleeContainer {
 
 	/**
 	 * manages (un)install of services
-	 * 
+	 *
 	 * @return
 	 */
 	public ServiceManagement getServiceManagement() {
@@ -521,7 +517,7 @@ public class SleeContainer {
 
 	/**
 	 * Get the current state of the Slee Container
-	 * 
+	 *
 	 * @return SleeState
 	 */
 	public SleeState getSleeState() {
@@ -529,40 +525,7 @@ public class SleeContainer {
 	}
 
 	/**
-	 * Indicates if SLEE container entered graceful stopping mode
 	 *
-	 * @return true if graceful stopping mode is active
-	 */
-	public boolean isGracefullyStopping() {
-		return this.isGracefullyStopping;
-	}
-
-	/**
-	 * Gets gracefulStopWaitTime value in seconds
-	 * @return Graceful Stop max Time
-	 */
-	public long getGracefulStopWaitTime() {
-		return gracefulStopWaitTime;
-	}
-
-	public void setGracefulStopWaitTime(long gracefulStopWaitTime) {
-		this.gracefulStopWaitTime = gracefulStopWaitTime;
-	}
-
-	/**
-	 * Gets gracefulStopActivitiesCountThreshold value
-	 * @return Graceful Stop Activities Count Threshold
-	 */
-	public int getGracefulStopActivitiesCountThreshold() {
-		return gracefulStopActivitiesCountThreshold;
-	}
-
-	public void setGracefulStopActivitiesCountThreshold(int gracefulStopActivitiesCountThreshold) {
-		this.gracefulStopActivitiesCountThreshold = gracefulStopActivitiesCountThreshold;
-	}
-
-	/**
-	 * 
 	 * @return
 	 */
 	public TimerFacility getTimerFacility() {
@@ -570,7 +533,7 @@ public class SleeContainer {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public TraceManagement getTraceManagement() {
@@ -579,7 +542,7 @@ public class SleeContainer {
 
 	/**
 	 * Get the transaction manager
-	 * 
+	 *
 	 * @throws
 	 */
 	public SleeTransactionManager getTransactionManager() {
@@ -589,7 +552,7 @@ public class SleeContainer {
 	// JNDI RELATED
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public UsageParametersManagement getUsageParametersManagement() {
@@ -617,9 +580,9 @@ public class SleeContainer {
 			i.next().sleeInitialization();
 		}
 		afterModulesInitialization();
-		sleeState = SleeState.STOPPED;		
+		sleeState = SleeState.STOPPED;
 	}
-	
+
 	/**
 	 * Shutdown of the SLEE container
 	 * @throws InvalidStateException
@@ -639,13 +602,13 @@ public class SleeContainer {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param request
 	 */
 	public void setSleeState(final SleeStateChangeRequest request) throws InvalidStateException {
 
 		final SleeState newState = request.getNewState();
-		
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("Changing state: " + sleeState + " -> " + newState);
 		}
@@ -656,16 +619,15 @@ public class SleeContainer {
 		SleeState oldState = this.sleeState;
 		this.sleeState = newState;
 		request.stateChanged(oldState);
-		
+
 		// notify modules and complete request
-		final Runnable task = new Runnable() {			
+		final Runnable task = new Runnable() {
 			public void run() {
 				try {
 					if (newState == SleeState.STARTING) {
-						isGracefullyStopping = false;
 						for (Iterator<SleeContainerModule> i = modules.iterator(); i.hasNext();) {
 							i.next().sleeStarting();
-						}						
+						}
 					}
 					else if (newState == SleeState.RUNNING) {
 						for (Iterator<SleeContainerModule> i = modules.iterator(); i.hasNext();) {
@@ -673,19 +635,8 @@ public class SleeContainer {
 						}
 					}
 					else if (newState == SleeState.STOPPING) {
-						isGracefullyStopping = request.isGraceful();
 						for (Iterator<SleeContainerModule> i = modules.descendingIterator(); i.hasNext();) {
 							SleeContainerModule sleeContainerModule = i.next();
-							if(isGracefullyStopping && !(sleeContainerModule instanceof ResourceManagement)) {
-								// in graceful stopping mode stop only RAs
-								if (logger.isTraceEnabled()) {
-									logger.trace("skip stopping " + sleeContainerModule.getClass().getSimpleName() + " in graceful stopping mode" );
-								}
-								continue;
-							}
-							if (logger.isInfoEnabled()) {
-								logger.info("stopping " + sleeContainerModule.toString() + (isGracefullyStopping ?" gracefully":"") );
-							}
 							sleeContainerModule.sleeStopping();
 						}
 					}
@@ -695,14 +646,14 @@ public class SleeContainer {
 						}
 						for (Iterator<SleeContainerModule> i=modules.descendingIterator(); i.hasNext();) {
 							i.next().sleeStopped();
-						}			
-					}	
+						}
+					}
 				}
 				catch (Throwable e) {
 					logger.error(e.getMessage(),e);
 				}
 				request.requestCompleted();
-			}							
+			}
 		};
 		if (request.isBlockingRequest()) {
 			task.run();
@@ -710,18 +661,18 @@ public class SleeContainer {
 		else {
 			final ExecutorService executorService = Executors.newSingleThreadExecutor();
 			try {
-				executorService.submit(task);				
+				executorService.submit(task);
 			}
 			catch (Throwable e) {
 				logger.error(e.getMessage(),e);
 			}
 			executorService.shutdown();
-		}		
+		}
 	}
-	
+
 	/**
 	 * Ensures the standard SLEE lifecycle.
-	 * 
+	 *
 	 * @param oldState
 	 * @param newState
 	 * @throws InvalidStateException
@@ -731,7 +682,7 @@ public class SleeContainer {
 		if (oldState == SleeState.STOPPED) {
 			if (newState == SleeState.STARTING) {
 				return;
-			}		
+			}
 		} else if (oldState == SleeState.STARTING) {
 			if (newState == SleeState.RUNNING || newState == SleeState.STOPPING) {
 				return;
@@ -741,13 +692,13 @@ public class SleeContainer {
 				return;
 			}
 		} else if (oldState == SleeState.STOPPING) {
-			if (newState == SleeState.STOPPED || newState == SleeState.STOPPING) {
+			if (newState == SleeState.STOPPED) {
 				return;
 			}
 		}
 		throw new InvalidStateException("illegal slee state transition: " + oldState + " -> "+ newState);
 	}
-	
+
 	public void beforeModulesInitialization() {
 		try {
 			// init jndi
@@ -769,9 +720,9 @@ public class SleeContainer {
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e.getMessage(),e);
-		}		
+		}
 	}
-	
+
 	public void afterModulesInitialization() {
 		if (!cluster.getMobicentsCache().isLocalMode()) {
 			cluster.getMobicentsCache().setReplicationClassLoader(
@@ -780,13 +731,13 @@ public class SleeContainer {
 		// start cluster
 		cluster.startCluster();
 	}
-	
+
 	public void beforeModulesShutdown() {
 		// stop the cluster
 		cluster.stopCluster();
 	}
-	
-	public void afterModulesShutdown() {		
+
+	public void afterModulesShutdown() {
 		try {
 			unregisterWithJndi();
 			Context ctx = new InitialContext();
@@ -816,12 +767,12 @@ public class SleeContainer {
 	public static SleeContainer lookupFromJndi() {
 		if (sleeContainer == null) {
 			try {
-				sleeContainer = (SleeContainer) JndiRegistrationManager.getFromJndi("slee/" + JNDI_NAME);					
+				sleeContainer = (SleeContainer) JndiRegistrationManager.getFromJndi("slee/" + JNDI_NAME);
 			} catch (Throwable ex) {
-				logger.error("Unexpected error: Cannot retrieve SLEE Container!",ex);					
-			}			
+				logger.error("Unexpected error: Cannot retrieve SLEE Container!",ex);
+			}
 		}
-		return sleeContainer;		
+		return sleeContainer;
 	}
 
 	private void registerWithJndi() {
