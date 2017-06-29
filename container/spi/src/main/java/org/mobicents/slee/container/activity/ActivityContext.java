@@ -64,7 +64,7 @@ public interface ActivityContext {
 	/**
 	 * attach an sbb entity to this AC.
 	 * 
-	 * @param sbbEntity
+	 * @param sbbEntityId
 	 *            -- sbb entity to attach.
 	 * @return true if the SBB Entity is attached successfully, otherwise when
 	 *         the SBB Entitiy has already been attached before, return false
@@ -197,6 +197,20 @@ public interface ActivityContext {
 	 * @return true if ending.
 	 */
 	public boolean isEnding();
+
+	/**
+	 * Returns activity context last access time
+	 *
+	 * @return Timestamp of activity context creation.
+	 */
+	public long getLastAccessTime();
+
+	/**
+	 * Returns activity context creation timestamp
+	 *
+	 * @return Timestamp of activity context creation. If not available - last access time is returned.
+	 */
+	public long getCreationTime();
 
 	/**
 	 * Add the given name to the set of activity context names that we are bound

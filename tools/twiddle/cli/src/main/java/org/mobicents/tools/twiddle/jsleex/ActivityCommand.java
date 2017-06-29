@@ -445,6 +445,8 @@ public class ActivityCommand extends AbstractSleeCommand {
 
 		public final static int IS_ENDING=8;
 
+		public final static int CREATION_TIME=9;
+
 		/* (non-Javadoc)
 		 * @see org.mobicents.tools.twiddle.op.AbstractOperation#unfoldArray(java.lang.String, java.lang.Object[])
 		 */
@@ -462,6 +464,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 					
 					sb.append("ACH               : ").append(rep[AC_ID]).append("\n");
 					sb.append("Class             : ").append(rep[ACTIVITY_CLASS]).append("\n");
+					sb.append("Creation time     : ").append(rep[CREATION_TIME]).append("\n");
 					sb.append("Last access time  : ").append(rep[LAST_ACCESS_TIME]).append("\n");
 					sb.append("Resource Adaptor  : ").append(rep[RA]).append("\n");
 					sb.append("Is ending         : ").append(rep[IS_ENDING]).append("\n");

@@ -406,15 +406,9 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		String acId = ac.getStringID();
 		
 		o[ActivityManagementMBeanImplMBean.AC_ID] = acId;
-		o[ActivityManagementMBeanImplMBean.IS_ENDING] = ac.isEnding();
 		logger.debug("======[getDetails]["
 				+ o[ActivityManagementMBeanImplMBean.AC_ID] + "]["
 				+ ac.hashCode() + "]");
-
-		o[ActivityManagementMBeanImplMBean.IS_ENDING] = ac.isEnding();
-		logger.debug("======[getDetails]["
-			+ o[ActivityManagementMBeanImplMBean.IS_ENDING] + "]["
-			+ ac.hashCode() + "]");
 
 		if (achOrig.getActivityType() == ActivityType.RA) {
 			o[RA] = ((ResourceAdaptorActivityContextHandle)achOrig).getResourceAdaptorEntity().getName();
@@ -429,7 +423,18 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		logger.debug("======[getDetails][LAST_ACCESS_TIME]["
 				+ o[LAST_ACCESS_TIME] + "]["
 				+ new Date(Long.parseLong((String) o[LAST_ACCESS_TIME])) + "]");
-		
+
+		o[CREATION_TIME] = ac.getCreationTime() + "";
+		logger.debug("======[getDetails][CREATION_TIME]["
+			+ o[CREATION_TIME] + "]["
+			+ new Date(Long.parseLong((String) o[CREATION_TIME])) + "]");
+
+		o[IS_ENDING] = ac.isEnding();
+		logger.debug("======[getDetails][IS_ENDING]["
+			+ o[IS_ENDING] + "]["
+			+ ac.hashCode() + "]");
+
+
 		Set<SbbEntityID> sbbAttachmentSet = ac.getSbbAttachmentSet();
 		String[] tmp = new String[sbbAttachmentSet.size()];
 		Iterator<?> it = sbbAttachmentSet.iterator();

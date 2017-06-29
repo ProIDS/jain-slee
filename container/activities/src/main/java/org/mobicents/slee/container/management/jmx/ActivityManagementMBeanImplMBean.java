@@ -36,7 +36,7 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
  * <li>issue request for liveliness querry</li>
  * </ul>
  * 
- * It also define multiple static values that desciibe structure of activity
+ * It also define multiple static values that describe structure of activity
  * context representation. Representation of AC is array. Those values are: <br>
  * <ul>
  * <li>{@link #AC_ID} </li>
@@ -47,6 +47,8 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
  * <li>{@link #NAMES_BOUND_TO}</li>
  * <li>{@link #TIMERS_ATTACHED}</li>
  * <li>{@link #DATA_PROPERTIES}</li>
+ * <li>{@link #IS_ENDING}</li>
+ * <li>{@link #CREATION_TIME}</li>
  * <li>{@link #ARRAY_SIZE}</li>
  * </ul>
  * 
@@ -124,10 +126,17 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 public final static int IS_ENDING = 8;
 
 	 /**
+	  * Defines index of String field in Object[], this field contains String
+	  * represenation of number in <b>long</b> format. This number is timestamp
+	  * of activity context creation.
+	  */
+	 public final static int CREATION_TIME = 9;
+
+	 /**
 	 * Defines ac array representation size, simply for ease modification - this
 	 * value is defined in one place.
 	 */
-	public final static int ARRAY_SIZE = 10;
+	public final static int ARRAY_SIZE = 11;
 
 	// --- STATICS FOR LISTING TYPES
 
@@ -181,7 +190,7 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 * value should have boundry, after passing which MBean sets some default
 	 * value.
 	 * 
-	 * @param new
+	 * @param set
 	 *            value of period between liveliness queries
 	 */
 	public void setTimeBetweenLivenessQueries(long set);

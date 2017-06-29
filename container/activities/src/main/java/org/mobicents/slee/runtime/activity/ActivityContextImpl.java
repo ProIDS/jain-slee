@@ -22,18 +22,6 @@
 
 package org.mobicents.slee.runtime.activity;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.slee.Address;
-import javax.slee.EventTypeID;
-import javax.slee.SLEEException;
-import javax.slee.ServiceID;
-import javax.slee.facilities.TimerID;
-import javax.slee.resource.ActivityFlags;
-import javax.slee.resource.ActivityIsEndingException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
@@ -53,6 +41,17 @@ import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.runtime.event.ActivityEndEventUnreferencedCallback;
 import org.mobicents.slee.runtime.event.CommitEventContextAction;
 import org.mobicents.slee.runtime.event.RollbackEventContextAction;
+
+import javax.slee.Address;
+import javax.slee.EventTypeID;
+import javax.slee.SLEEException;
+import javax.slee.ServiceID;
+import javax.slee.facilities.TimerID;
+import javax.slee.resource.ActivityFlags;
+import javax.slee.resource.ActivityIsEndingException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Create one of these when a new SipTransaction is seen by the stack. Call the
@@ -78,6 +77,8 @@ public class ActivityContextImpl implements ActivityContext {
 	private static final String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags";
 
 	private static final String NODE_MAP_KEY_LAST_ACCESS = "time";
+
+	private static final String NODE_MAP_KEY_CREATION_TIME = "createtime";
 
 	/**
 	 * the handle for this ac
@@ -202,7 +203,7 @@ public class ActivityContextImpl implements ActivityContext {
 	/**
 	 * Get the shared data for the ACI.
 	 * 
-	 * @param name
+	 * @param key
 	 *            -- name we want to look up
 	 * @return the shared data for the ACI
 	 * 
@@ -344,7 +345,7 @@ public class ActivityContextImpl implements ActivityContext {
 	/**
 	 * attach an sbb entity to this AC.
 	 * 
-	 * @param sbbEntity
+	 * @param sbbEntityId
 	 *            -- sbb entity to attach.
 	 * @return true if the SBB Entity is attached successfully, otherwise when
 	 *         the SBB Entitiy has already been attached before, return false
@@ -421,12 +422,18 @@ public class ActivityContextImpl implements ActivityContext {
 		return time == null ? System.currentTimeMillis() : time.longValue();
 	}
 
+	public long getCreationTime() {
+		final Long time = (Long) cacheData.getObject(NODE_MAP_KEY_CREATION_TIME);
+		return time == null ? getLastAccessTime() : time.longValue();
+	}
+
 	// --- private helpers
 
 	private void updateLastAccessTime(boolean creation) {
 		if (creation) {
-			cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS,
-					Long.valueOf(System.currentTimeMillis()));
+			long creationTime = Long.valueOf(System.currentTimeMillis());
+			cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, creationTime);
+			cacheData.putObject(NODE_MAP_KEY_CREATION_TIME, creationTime);
 		} else {
 			ActivityManagementConfiguration configuration = factory
 					.getConfiguration();
