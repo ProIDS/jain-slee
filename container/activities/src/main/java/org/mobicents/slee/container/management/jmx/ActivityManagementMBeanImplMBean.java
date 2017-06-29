@@ -117,11 +117,17 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 */
 	public final static int DATA_PROPERTIES = 7;
 
-	/**
+	 /**
+	  * Defines index of String field in Object[], this field represents isEnding flag
+	  * for this activity context.
+	  */
+	 public final static int IS_ENDING = 8;
+
+	 /**
 	 * Defines ac array representation size, simply for ease modification - this
 	 * value is defined in one place.
 	 */
-	public final static int ARRAY_SIZE = 8;
+	public final static int ARRAY_SIZE = 10;
 
 	// --- STATICS FOR LISTING TYPES
 
@@ -237,7 +243,7 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 *             null AC.
 	 * 
 	 */
-	public void endActivity(ActivityContextHandle nullACID) throws ManagementException;
+	public void endNullActivity(String nullACID) throws ManagementException;
 
 	/**
 	 * 

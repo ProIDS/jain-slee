@@ -38,6 +38,11 @@ import javax.slee.SbbID;
 import javax.slee.facilities.TimerID;
 import javax.slee.management.ManagementException;
 import javax.slee.nullactivity.NullActivity;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -130,27 +135,38 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 
 	// --- OPERATIONS
 
-	public void endActivity(ActivityContextHandle ach) throws ManagementException {
 
-		// Again this is tx method
-		logger.info("Trying to stop null activity[" + ach + "]!!");
-		ActivityContext ac = acFactory.getActivityContext(ach);
+	public void endNullActivity(String achId) throws ManagementException {
+		logger.info("Trying to stop null activity with ACH ID[" + achId + "]!!");
+		ActivityContext ac = acFactory.getActivityContext(achId);
+
 		if (ac == null) {
 			logger.debug("There is no ac associated with given acID["
-						+ ach + "]!!");
+						+ achId + "]!!");
 			throw new ManagementException("Can not find AC for given ID["
-					+ ach + "], try again!!!");
+					+ achId + "], try again!!!");
 		}
 		if (ac.getActivityContextHandle().getActivityType() == ActivityType.NULL) {
-			logger.debug("Scheduling activity end for acID[" + ach
+			logger.debug("Scheduling activity end for acID[" + achId
 						+ "]");
 			NullActivity nullActivity = (NullActivity) ac.getActivityContextHandle().getActivityObject();
 			if (nullActivity != null) {
-				nullActivity.endActivity();
+				try {
+					sleeContainer.getTransactionManager().begin();
+					nullActivity.endActivity();
+					sleeContainer.getTransactionManager().commit();
+				} catch (Exception e) {
+					logger.error("Exception when endingNullActivity ID: " + achId, e);
+					try {
+						sleeContainer.getTransactionManager().rollback();
+					} catch (Exception e1) {
+						logger.error("Exception when rollback transaction on endingNullActivity ID: " + achId, e);
+					}
+				}
 			}
 		} else {
 			logger.debug("AC is not null activity context");
-			throw new IllegalArgumentException("Given ID[" + ach
+			throw new IllegalArgumentException("Given ID[" + achId
 					+ "] does not point to NullActivity");
 		}		
 	}
@@ -252,6 +268,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 				
 	      String acId = ac.getStringID();
 	      String acSource = achOrig.getActivityType() == ActivityType.RA ? ((ResourceAdaptorActivityContextHandle)achOrig).getResourceAdaptorEntity().getName() : "";
+	      boolean isEnding = ac.isEnding();
 
 	      switch (criteria) {
 				case LIST_BY_ACTIVITY_CLASS:
@@ -389,15 +406,20 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		String acId = ac.getStringID();
 		
 		o[ActivityManagementMBeanImplMBean.AC_ID] = acId;
+		o[ActivityManagementMBeanImplMBean.IS_ENDING] = ac.isEnding();
 		logger.debug("======[getDetails]["
 				+ o[ActivityManagementMBeanImplMBean.AC_ID] + "]["
 				+ ac.hashCode() + "]");
-		
-		
+
+		o[ActivityManagementMBeanImplMBean.IS_ENDING] = ac.isEnding();
+		logger.debug("======[getDetails]["
+			+ o[ActivityManagementMBeanImplMBean.IS_ENDING] + "]["
+			+ ac.hashCode() + "]");
+
 		if (achOrig.getActivityType() == ActivityType.RA) {
 			o[RA] = ((ResourceAdaptorActivityContextHandle)achOrig).getResourceAdaptorEntity().getName();
 		}
-		
+
 		o[ACTIVITY_CLASS] = achOrig.getActivityObject().getClass().getName();
 		logger.debug("======[getDetails][ACTIVITY_CLASS][" + o[ACTIVITY_CLASS]
 				+ "]");

@@ -19,19 +19,17 @@ package org.mobicents.tools.twiddle.jsleex;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
-
-import java.beans.PropertyEditor;
-import java.io.PrintWriter;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
 import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.beans.PropertyEditor;
+import java.io.PrintWriter;
 
 /**
  * Command to interact with ActivityManagement MBean
@@ -71,7 +69,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 		out.println("    		--id-by-ra-entity        List IDs of activity context based on RA entity name. Requires entity name as argument.");
 		out.println("    		--id-by-sbb-id           List IDs of activity context based on SBB ID. Requires SBB ID as argument.");
 		//out.println("    		--id-by-sbbe-id          List IDs of activity context based on SBB entity ID. Requires SBB entity ID as argument.");
-		//out.println("    -e, --end                       Ends explicitly activity. Requires ActivityContextHandle as argument.");
+		out.println("    -e, --end                       Ends explicitly activity. Requires ActivityContextHandle as argument.");
 		//out.println("arg:");
 		//out.println("");
 		//out.println("");
@@ -96,7 +94,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 	@Override
 	protected void processArguments(String[] args) throws CommandException {
 		//String sopts = ":cqid:le:";
-		String sopts = ":cqil";
+		String sopts = ":cqile:";
 		LongOpt[] lopts = { 
 				new LongOpt("count", LongOpt.NO_ARGUMENT, null, 'c'),
 				new LongOpt("query", LongOpt.NO_ARGUMENT, null, 'q'),
@@ -113,11 +111,10 @@ public class ActivityCommand extends AbstractSleeCommand {
 					new LongOpt("factories", LongOpt.NO_ARGUMENT, null, ListOperation.factories),
 					new LongOpt("contexts", LongOpt.OPTIONAL_ARGUMENT, null, ListOperation.contexts),
 					new LongOpt("id-by-activity-type", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.activityType),
-					new LongOpt("id--by-ra-entity", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.raEntity),
+					new LongOpt("id-by-ra-entity", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.raEntity),
 					new LongOpt("id-by-sbb-id", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.sbbID),
 					//new LongOpt("id-by-sbbe-id", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.sbbEID),
-				//new LongOpt("end", LongOpt.REQUIRED_ARGUMENT, null, 'e'),
-
+				new LongOpt("end", LongOpt.REQUIRED_ARGUMENT, null, 'e'),
 		};
 
 		Getopt getopt = new Getopt(null, args, sopts, lopts);
@@ -437,7 +434,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 	    public final static int LAST_ACCESS_TIME=2;
 
 	    public final static int RA=3;
-	   
+
 	    public final static int SBB_ATTACHMENTS=4;
 	   
 	    public final static int NAMES_BOUND_TO=5;
@@ -445,6 +442,9 @@ public class ActivityCommand extends AbstractSleeCommand {
 	    public final static int TIMERS_ATTACHED=6;
 	    
 	    public final static int DATA_PROPERTIES=7;
+
+		public final static int IS_ENDING=8;
+
 		/* (non-Javadoc)
 		 * @see org.mobicents.tools.twiddle.op.AbstractOperation#unfoldArray(java.lang.String, java.lang.Object[])
 		 */
@@ -464,6 +464,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 					sb.append("Class             : ").append(rep[ACTIVITY_CLASS]).append("\n");
 					sb.append("Last access time  : ").append(rep[LAST_ACCESS_TIME]).append("\n");
 					sb.append("Resource Adaptor  : ").append(rep[RA]).append("\n");
+					sb.append("Is ending         : ").append(rep[IS_ENDING]).append("\n");
 					if(rep[SBB_ATTACHMENTS].getClass().isArray())
 					{
 						sb.append("SBB attached      : ").append(super.unfoldArray("     ", (Object[])rep[SBB_ATTACHMENTS],null)).append("\n");
@@ -492,17 +493,20 @@ public class ActivityCommand extends AbstractSleeCommand {
 	
 	private class EndOperation extends AbstractOperation {
 		
-		private static final String OPERATION_endActivity = "endActivity";
+		private static final String OPERATION_endNullActivity = "endNullActivity";
 		public EndOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = OPERATION_endActivity;
+			super.operationName = OPERATION_endNullActivity;
 		}
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			//TODO: add ACH parse
-			//String optArg = opts.getOptarg();
-			//addArg(optArg, String.class, false);
+			String optArg = opts.getOptarg();
+			if(optArg != null && optArg.trim().length() > 0) {
+				addArg(optArg, String.class, false);
+			} else {
+				throw new CommandException("Command: \"" + sleeCommand.getName() + "\", expects a valid ACH ID string!");
+			}
 
 		}
 

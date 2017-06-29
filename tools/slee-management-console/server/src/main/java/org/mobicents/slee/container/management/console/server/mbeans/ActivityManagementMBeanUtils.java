@@ -22,10 +22,10 @@
 
 package org.mobicents.slee.container.management.console.server.mbeans;
 
+import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
+
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
-
-import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
 
 /**
  * @author Stefano Zappaterra
@@ -64,7 +64,7 @@ public class ActivityManagementMBeanUtils {
 
   public void endActivity(String id) throws ManagementConsoleException {
     try {
-      mbeanServer.invoke(activityMBean, "endActivity", new Object[] { id }, new String[] { String.class.getName() });
+      mbeanServer.invoke(activityMBean, "endNullActivity", new Object[] { id }, new String[] { String.class.getName() });
     }
     catch (Exception e) {
       e.printStackTrace();
