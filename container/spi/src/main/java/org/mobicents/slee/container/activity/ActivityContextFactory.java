@@ -26,12 +26,10 @@
 package org.mobicents.slee.container.activity;
 
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.resource.ActivityAlreadyExistsException;
 
 import org.mobicents.slee.container.SleeContainerModule;
-import org.mobicents.slee.runtime.activity.LocalActivityContextImpl;
 
 /**
  * @author martins
@@ -101,6 +99,11 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	public Set<ActivityContextHandle> getAllActivityContextsHandles();
 
 	/**
+	 * @return Set of local registered SLEE activity context handles
+	 */
+	public Set<ActivityContextHandle> getLocalActivityContextHandles();
+
+	/**
 	 * @return
 	 */
 	public int getActivityContextCount();
@@ -112,7 +115,5 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 * @return
 	 */
 	public boolean activityContextExists(ActivityContextHandle ach);
-
-	ConcurrentHashMap<ActivityContextHandle, LocalActivityContextImpl> getLocalActivityContexts();
 
 }

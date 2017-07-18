@@ -247,5 +247,9 @@ public interface ResourceAdaptorEntity {
 	 */
 	public int getRaEntityActivitiesCount();
 
-	int getRaEntityLocalRaActivitiesCount();
+	/**
+	 * Gets the current number of local activities handled by this RA entity.
+	 * @return
+	 */
+	public int getRaEntityLocalActivitiesCount();
 }

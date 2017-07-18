@@ -37,7 +37,7 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * @author baranowb
- *
+ * @author <a href="mailto:bartosz.krok@pro-ids.com"> Bartosz Krok (ProIDS sp. z o.o.)</a>
  */
 public class ResourceCommand extends AbstractSleeCommand {
 
@@ -358,9 +358,6 @@ public class ResourceCommand extends AbstractSleeCommand {
 		private String entityName;
 
 		private static final String OPERATION_gracefulShutdownResourceAdaptorEntity = "gracefulShutdownResourceAdaptorEntity";
-		//TODO delete
-//    private static final String OPERATION_setActiveSessionsTreshold = "setActiveSessionsTreshold";
-//    private static final String OPERATION_setTime = "setTime";
 
 		//ast which must be present with 'a';
 		private String activeSessionThresholdStr = "-1";
@@ -374,8 +371,6 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-
-//			super.addArg(opts.getOptarg(), String.class, false);
 
 			int code;
 

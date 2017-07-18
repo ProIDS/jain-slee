@@ -78,7 +78,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Manages deployed resource adaptor components.
  *
  * @author Eduardo Martins
- * @author @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
+ * @author <a href="mailto:bartosz.krok@pro-ids.com"> Bartosz Krok (ProIDS sp. z o.o.)</a>
  *
  */
 public final class ResourceManagementImpl extends AbstractSleeContainerModule implements ResourceManagement {
@@ -365,7 +365,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		try {
 			raEntity.getResourceAdaptorObject().getObject().getClass().getMethod(GracefullyStopableResourceAdaptor.RA_GRACEFUL_STOP_METHOD_NAME);
 		} catch (NoSuchMethodException ex) {
-			logger.warn("RA object of entity: " + raEntity.getName() + " does not support graceful stopping mode. Cause: " + ex.getClass() + " " + ex.getMessage());
+			logger.warn("RA object of entity: " + raEntity.getName() + " does not support graceful shutdown mode. Cause: " + ex.getClass() + " " + ex.getMessage());
 			return;
 		}
 
@@ -406,23 +406,19 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 					}
 					if (raObjState == ResourceAdaptorObjectState.STOPPING) {
 						loop = true;
-						currentRaActivitiesCount = raEntity.getRaEntityLocalRaActivitiesCount();
+						currentRaActivitiesCount = raEntity.getRaEntityLocalActivitiesCount();
 						logger.info("Waiting for ra entity " + raEntity.getName() + " to stop gracefully. Activities RA left: " + currentRaActivitiesCount);
 					}
 
 					if (currentRaActivitiesCount < ast) {
-						if(logger.isDebugEnabled()) {
-							logger.debug("Number of current activites to lose: " + currentRaActivitiesCount);
-						}
-						logger.warn("Current GS compliant RA entities activities count is lower than AST (" + ast + "). Breaking graceful RAs stop!");
+						logger.info("Number of current activites to lose: " + currentRaActivitiesCount);
+						logger.info("Current GS compliant RA entities activities count is lower than AST (" + ast + "). Breaking graceful RAs shutdown!");
 						raEntity.forceDeactivation();
 						break;
 					}
 					if (System.currentTimeMillis() > gracefulStopThreshold) {
-						if(logger.isDebugEnabled()) {
-							logger.debug("Number of current activites to lose: " + currentRaActivitiesCount);
-						}
-						logger.warn("Max graceful stop time has passed (" + time + "s). Breaking graceful RAs stop!");
+						logger.info("Number of current activites to lose: " + currentRaActivitiesCount);
+						logger.info("Max graceful shutdown time has passed (" + time + "s). Breaking graceful RAs shutdown!");
 						raEntity.forceDeactivation();
 						break;
 					}

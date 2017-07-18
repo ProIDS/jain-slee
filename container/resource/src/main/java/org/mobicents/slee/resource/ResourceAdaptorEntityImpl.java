@@ -38,7 +38,6 @@ import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContextImpl;
-import org.mobicents.slee.runtime.activity.LocalActivityContextImpl;
 
 import javax.slee.EventTypeID;
 import javax.slee.InvalidArgumentException;
@@ -72,6 +71,7 @@ import java.util.TimerTask;
  *
  * @author Eduardo Martins
  * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
+ * @author <a href="mailto:bartosz.krok@pro-ids.com"> Bartosz Krok (ProIDS sp. z o.o.)</a>
  */
 public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 
@@ -415,9 +415,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 						cancel();
 						if (state == ResourceAdaptorEntityState.STOPPING) {
 							if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
-								if(!sleeContainer.getCluster().isSingleMember()) {
 									scheduleAllActivitiesEnd();
-								}
 							}
 							else {
 								allActivitiesEnded();
@@ -470,8 +468,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	}
 
 	private void removeLocalActivity() {
-		for (Map.Entry<ActivityContextHandle, LocalActivityContextImpl> entry: sleeContainer.getActivityContextFactory().getLocalActivityContexts().entrySet()) {
-			ActivityContextHandle handle = entry.getKey();
+		for (ActivityContextHandle handle : sleeContainer.getActivityContextFactory().getLocalActivityContextHandles()) {
 			if (handle.getActivityType() == ActivityType.RA) {
 				final ResourceAdaptorActivityContextHandle raHandle = (ResourceAdaptorActivityContextHandle) handle;
 				if (raHandle.getResourceAdaptorEntity().equals(this)) {
@@ -553,15 +550,14 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * Gets the current number of activities handled by this RA entity.
 	 * @return
 	 */
-	public int getRaEntityLocalRaActivitiesCount() {
+	public int getRaEntityLocalActivitiesCount() {
 		int activitiesCount = 0;
 		try {
 			if(!this.state.isInactive()) {
 				if(logger.isDebugEnabled()){
-					logger.debug("Number of all local activities = " + sleeContainer.getActivityContextFactory().getLocalActivityContexts().size());
+					logger.debug("Number of all local activities = " + sleeContainer.getActivityContextFactory().getLocalActivityContextHandles().size());
 				}
-				for (Map.Entry<ActivityContextHandle, LocalActivityContextImpl> entry: sleeContainer.getActivityContextFactory().getLocalActivityContexts().entrySet()) {
-					ActivityContextHandle handle = entry.getKey();
+				for (ActivityContextHandle handle : sleeContainer.getActivityContextFactory().getLocalActivityContextHandles()) {
 					if (handle.getActivityType() == ActivityType.RA) {
 						ResourceAdaptorActivityContextHandle raHandle = (ResourceAdaptorActivityContextHandle) handle;
 						if (raHandle.getResourceAdaptorEntity().equals(this)) {

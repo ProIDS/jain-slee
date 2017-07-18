@@ -81,7 +81,6 @@ import java.util.logging.Handler;
  * @author Emil Ivov
  * @author Tim Fox
  * @author eduardomartins
- * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
  */
 public class SleeContainer {
 
@@ -135,17 +134,6 @@ public class SleeContainer {
 	private final MBeanServer mbeanServer;
 	/** The lifecycle state of the SLEE */
 	private SleeState sleeState;
-	/**
-	 * Graceful stop min activities threshold value.
-	 * When the number of all GS capable RA entities activities drops below this value then container shall be stopped in standard mode.
-	 */
-	private int gracefulStopActivitiesCountThreshold = Integer.MAX_VALUE;
-	/**
-	 * Graceful stop waiting time value in seconds.
-	 * When the contained is not stopped withing this time then it shall be stopped in standard mode.
-	 */
-	private long gracefulStopWaitTime = Long.MAX_VALUE;
-
 	// the class that actually posts events to the SBBs.
 	// This should be made into a facility and registered with jmx and jndi
 	// so it can be independently controlled.

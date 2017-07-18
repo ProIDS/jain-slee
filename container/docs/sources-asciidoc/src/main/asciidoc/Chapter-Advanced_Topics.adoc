@@ -14,7 +14,7 @@ include::Section-Congestion_Control.adoc[]
 
 :leveloffset: +1
 
-include::Section-Graceful-Stop.adoc[]
+include::Section-Graceful-Shutdown.adoc[]
 
 :leveloffset: -1
 

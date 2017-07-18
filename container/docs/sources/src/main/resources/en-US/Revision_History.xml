@@ -7,7 +7,7 @@
 	id="revision_history">
 	<title>Revision History</title>
 	<simpara>
-		<revhistory>		
+		<revhistory>
 			<revision>
 				<revnumber>1.0</revnumber>
 				<date>Tue Dec 22 2009</date>
@@ -43,7 +43,7 @@
 				</author>
 				<revdescription>
 					<simplelist>
-						<member>Advanced topics updated for Graceful Stop feature</member>
+						<member>Advanced topics updated for Graceful Shutdown feature</member>
 					</simplelist>
 				</revdescription>
 			</revision>

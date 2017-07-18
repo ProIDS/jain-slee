@@ -48,6 +48,7 @@ import java.lang.reflect.Method;
  *
  * @author Eduardo Martins
  * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
+ * @author <a href="mailto:bartosz.krok@pro-ids.com"> Bartosz Krok (ProIDS sp. z o.o.)</a>
  */
 public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 
@@ -295,14 +296,12 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			method = object.getClass().getMethod(GracefullyStopableResourceAdaptor.RA_GRACEFUL_STOP_METHOD_NAME);
 			method.invoke(object);
 			state = ResourceAdaptorObjectState.STOPPING;
-			if(!raEntity.hasActivities()) {
-				raEntity.allActivitiesEnded();
-			}
 			isSuccess = true;
 		} catch (Throwable t) {
-			logger.warn("RA object of entity: " + raEntity.getName() + " does not support graceful stopping mode. Cause: " + t.getClass() + " " + t.getMessage());
+			logger.warn("RA object of entity: " + raEntity.getName() + " does not support graceful shutdown mode. Cause: " + t.getClass() + " " + t.getMessage());
 			if(doTraceLogs) {
-				logger.warn("Exception on RA graceful stopping method (" +GracefullyStopableResourceAdaptor.RA_GRACEFUL_STOP_METHOD_NAME+ ") invocation on " + raEntity.getName(), t);
+				logger.warn("Exception on RA graceful shutdown method (" +GracefullyStopableResourceAdaptor.RA_GRACEFUL_STOP_METHOD_NAME+ ") invocation on " + raEntity
+						.getName(), t);
 			}
 		}
 		return isSuccess;

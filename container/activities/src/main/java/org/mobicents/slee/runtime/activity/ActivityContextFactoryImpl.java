@@ -21,6 +21,8 @@
 
 package org.mobicents.slee.runtime.activity;
 
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -251,16 +253,21 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#getActivityContextCount()
 	 */
 	public int getActivityContextCount() {
+		int local = localActivityContexts.size();
+		int all = getAllActivityContextsHandles().size();
+
 		return getAllActivityContextsHandles().size();
 	}
 
-	public int getLocalActivityContextsCount() {
-		return localActivityContexts.size();
-	}
 
+	public Set<ActivityContextHandle> getLocalActivityContextHandles() {
+		Set<ActivityContextHandle> localActivityContextHandles = new HashSet<ActivityContextHandle>();
+		for (Map.Entry<ActivityContextHandle, LocalActivityContextImpl> entry: localActivityContexts.entrySet()) {
+			ActivityContextHandle handle = entry.getKey();
+			localActivityContextHandles.add(handle);
+		}
 
-	public ConcurrentHashMap<ActivityContextHandle, LocalActivityContextImpl> getLocalActivityContexts() {
-		return localActivityContexts;
+		return localActivityContextHandles;
 	}
 
 	/*
